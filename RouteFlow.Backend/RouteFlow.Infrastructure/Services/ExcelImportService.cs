@@ -10,12 +10,6 @@ namespace RouteFlow.Infrastructure.Services
 {
     public class ExcelImportService : IExcelImportService
     {
-        public ExcelImportService()
-        {
-            // Requires EPPlus dependency LicenseContext.NonCommercial
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-        }
-
         public async Task<IEnumerable<Order>> ParseExcelAsync(Stream excelStream)
         {
             var parsedOrders = new List<Order>();
@@ -36,13 +30,16 @@ namespace RouteFlow.Infrastructure.Services
                 var lngStr = worksheet.Cells[row, 5].Text;
                 var note = worksheet.Cells[row, 6].Text;
 
-                if (string.IsNullOrWhiteSpace(orderCode)) continue;
+                if (string.IsNullOrWhiteSpace(customerName) || string.IsNullOrWhiteSpace(address)) continue;
 
-                if (double.TryParse(latStr, out var latitude) && double.TryParse(lngStr, out var longitude))
-                {
-                    var order = Order.Create(orderCode, customerName, address, latitude, longitude, note);
-                    parsedOrders.Add(order);
-                }
+                double latitude = 0;
+                double longitude = 0;
+
+                double.TryParse(latStr, out latitude);
+                double.TryParse(lngStr, out longitude);
+
+                var order = Order.Create(customerName, address, latitude, longitude, note);
+                parsedOrders.Add(order);
             }
 
             return await Task.FromResult(parsedOrders);

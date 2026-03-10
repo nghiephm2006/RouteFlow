@@ -20,9 +20,12 @@ export class OrdersComponent implements OnInit {
   uploading: boolean = false;
   showAddForm: boolean = false;
   orderForm: FormGroup;
+  editingOrderId: string | null = null;
   
   suggestions: any[] = [];
   showDropdown: boolean = false;
+  
+  isRefreshing: boolean = false;
 
   @Output() routePendingOrders = new EventEmitter<Order[]>();
 
@@ -33,7 +36,6 @@ export class OrdersComponent implements OnInit {
     private fb: FormBuilder
   ) {
     this.orderForm = this.fb.group({
-      orderCode: ['', Validators.required],
       customerName: ['', Validators.required],
       address: ['', Validators.required],
       latitude: [null],
@@ -72,7 +74,23 @@ export class OrdersComponent implements OnInit {
     this.showAddForm = !this.showAddForm;
     if (!this.showAddForm) {
       this.orderForm.reset();
+      this.editingOrderId = null;
     }
+  }
+
+  editOrder(order: Order): void {
+    // Open form and patch values
+    this.showAddForm = true;
+    this.editingOrderId = order.id;
+    this.orderForm.patchValue({
+      customerName: order.customerName,
+      address: order.address,
+      latitude: order.latitude !== 0 ? order.latitude : null,
+      longitude: order.longitude !== 0 ? order.longitude : null,
+      note: order.note
+    });
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   submitOrder(): void {
@@ -83,20 +101,45 @@ export class OrdersComponent implements OnInit {
       }
 
       this.loading = true;
-      this.orderService.createOrder(this.orderForm.value).subscribe({
-        next: () => {
-          alert('Thêm đơn hàng thành công!');
-          this.toggleAddForm();
-          this.loadOrders();
-          this.loadStats();
-        },
-        error: (err) => {
-          console.error('Error creating order', err);
-          alert('Có lỗi xảy ra khi tạo đơn hàng mới.');
-          this.loading = false;
-          this.cdr.detectChanges();
-        }
-      });
+      const payload = this.orderForm.value;
+      
+      if (this.editingOrderId) {
+        // Update
+        const updatePayload = {
+          ...payload,
+          id: this.editingOrderId
+        };
+        this.orderService.updateOrder(this.editingOrderId, updatePayload).subscribe({
+          next: () => {
+            alert('Cập nhật đơn hàng thành công!');
+            this.toggleAddForm();
+            this.loadOrders();
+            this.loadStats();
+          },
+          error: (err) => {
+            console.error('Error updating order', err);
+            alert('Có lỗi xảy ra khi cập nhật đơn hàng.');
+            this.loading = false;
+            this.cdr.detectChanges();
+          }
+        });
+      } else {
+        // Create
+        this.orderService.createOrder(payload).subscribe({
+          next: () => {
+            alert('Thêm đơn hàng thành công!');
+            this.toggleAddForm();
+            this.loadOrders();
+            this.loadStats();
+          },
+          error: (err) => {
+            console.error('Error creating order', err);
+            alert('Có lỗi xảy ra khi tạo đơn hàng mới.');
+            this.loading = false;
+            this.cdr.detectChanges();
+          }
+        });
+      }
     }
   }
 
@@ -131,6 +174,22 @@ export class OrdersComponent implements OnInit {
       this.showDropdown = false;
       this.cdr.detectChanges();
     }, 200);
+  }
+
+  refreshOrders(): void {
+    if (this.isRefreshing) return;
+    
+    this.isRefreshing = true;
+    this.cdr.detectChanges();
+    
+    this.loadOrders();
+    this.loadStats();
+    
+    // Auto unlock after 2 seconds to prevent spam
+    setTimeout(() => {
+      this.isRefreshing = false;
+      this.cdr.detectChanges();
+    }, 2000);
   }
 
   loadOrders(): void {

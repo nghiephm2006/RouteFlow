@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OfficeOpenXml;
 using RouteFlow.Api.Middlewares;
+using RouteFlow.Api.Services;
 using RouteFlow.Application;
 using RouteFlow.Infrastructure;
 
@@ -11,6 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// Register Background Worker for Geocoding
+builder.Services.AddHostedService<GeocodingBackgroundService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

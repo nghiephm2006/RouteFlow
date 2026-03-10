@@ -41,6 +41,10 @@ export class OrderService {
     return this.http.get<Order[]>(this.apiUrl);
   }
 
+  getOrderById(id: string): Observable<Order> {
+    return this.http.get<Order>(`${this.apiUrl}/${id}`);
+  }
+
   getPendingOrders(): Observable<Order[]> {
     return this.http.get<Order[]>(`${this.apiUrl}/pending`);
   }
@@ -49,8 +53,12 @@ export class OrderService {
     return this.http.get<OrderStats>(`${this.apiUrl}/stats`);
   }
 
-  createOrder(order: Partial<Order>): Observable<string> {
+  createOrder(order: Omit<Order, 'id' | 'orderCode' | 'status' | 'createdAt'>): Observable<string> {
     return this.http.post<string>(this.apiUrl, order);
+  }
+
+  updateOrder(id: string, order: Partial<Order>): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}`, order);
   }
 
   deleteOrder(id: string): Observable<void> {

@@ -26,6 +26,9 @@ namespace RouteFlow.Infrastructure
             services.AddTransient<IExcelTemplateService, ExcelTemplateService>();
             services.AddTransient<IClusterService, ClusterService>();
 
+            // Register Geocoding Service with HttpClient
+            services.AddHttpClient<IGeocodingService, NominatimGeocodingService>();
+
             return services;
         }
     }

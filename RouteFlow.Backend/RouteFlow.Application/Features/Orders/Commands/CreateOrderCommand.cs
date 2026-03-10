@@ -9,7 +9,6 @@ using RouteFlow.Domain.Interfaces;
 namespace RouteFlow.Application.Features.Orders.Commands
 {
     public record CreateOrderCommand(
-        string OrderCode,
         string CustomerName,
         string Address,
         double Latitude,
@@ -20,7 +19,6 @@ namespace RouteFlow.Application.Features.Orders.Commands
     {
         public CreateOrderCommandValidator()
         {
-            RuleFor(x => x.OrderCode).NotEmpty().WithMessage("OrderCode is required.");
             RuleFor(x => x.CustomerName).NotEmpty().WithMessage("CustomerName is required.");
             RuleFor(x => x.Address).NotEmpty().WithMessage("Address is required.");
             RuleFor(x => x.Latitude).InclusiveBetween(-90, 90).WithMessage("Invalid Latitude.");
@@ -41,15 +39,7 @@ namespace RouteFlow.Application.Features.Orders.Commands
 
         public async Task<Guid> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
-            // Validate unique OrderCode (could also be done via a custom validation rule)
-            var existingOrder = await _repository.GetByOrderCodeAsync(request.OrderCode);
-            if (existingOrder != null)
-            {
-                throw new Exception($"OrderCode '{request.OrderCode}' already exists."); // Simplified exception
-            }
-
             var order = Order.Create(
-                request.OrderCode,
                 request.CustomerName,
                 request.Address,
                 request.Latitude,

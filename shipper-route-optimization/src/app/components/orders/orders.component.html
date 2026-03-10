@@ -25,6 +25,13 @@
   <!-- Actions Toolbar -->
   <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border mb-4">
     <div class="flex gap-3 items-center">
+      <button (click)="refreshOrders()" [disabled]="isRefreshing" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-wait">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" [ngClass]="{'animate-spin text-[#F97316]': isRefreshing}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span class="hidden sm:inline">{{ isRefreshing ? 'Đang tải...' : 'Làm mới' }}</span>
+      </button>
+
       <button (click)="toggleAddForm()" [ngClass]="{'bg-[#1A365D] text-white': showAddForm, 'bg-white text-[#1A365D]': !showAddForm}" class="border border-[#1A365D] hover:bg-opacity-90 px-4 py-2 rounded-md text-sm font-medium transition flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -70,12 +77,8 @@
         </svg>
       </button>
     </div>
-    <form [formGroup]="orderForm" (ngSubmit)="submitOrder()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div>
-        <label class="block text-xs text-gray-500 font-medium mb-1">Mã Đơn *</label>
-        <input type="text" formControlName="orderCode" placeholder="Vd: ORD-001" class="w-full text-sm border-gray-300 rounded-md focus:ring-[#F97316] focus:border-[#F97316] p-2 py-1.5 border">
-      </div>
-      <div>
+    <form [formGroup]="orderForm" (ngSubmit)="submitOrder()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="lg:col-span-1">
         <label class="block text-xs text-gray-500 font-medium mb-1">Tên Khách Hàng *</label>
         <input type="text" formControlName="customerName" placeholder="Tên khách hàng" class="w-full text-sm border-gray-300 rounded-md focus:ring-[#F97316] focus:border-[#F97316] p-2 py-1.5 border">
       </div>
@@ -106,13 +109,13 @@
           ⚠️ Bạn vui lòng chọn một địa chỉ cụ thể từ danh sách gợi ý rơi xuống để lấy được (Lat, Lng) chính xác nhé!
         </div>
       </div>
-      <div class="lg:col-span-3">
+      <div class="lg:col-span-2">
         <label class="block text-xs text-gray-500 font-medium mb-1">Ghi chú</label>
         <input type="text" formControlName="note" placeholder="Yêu cầu thêm..." class="w-full text-sm border-gray-300 rounded-md focus:ring-[#F97316] focus:border-[#F97316] p-2 py-1.5 border">
       </div>
       <div class="flex items-end justify-end">
         <button type="submit" [disabled]="orderForm.invalid || loading" class="w-full bg-[#1A365D] text-white hover:bg-blue-900 px-4 py-1.5 rounded-md text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2">
-          Lưu Đơn Mới
+          {{ editingOrderId ? 'Cập Nhật Đơn' : 'Lưu Đơn Mới' }}
         </button>
       </div>
     </form>
@@ -168,11 +171,18 @@
             <div class="whitespace-normal min-w-[150px] text-gray-500 break-words">{{ order.note || '-' }}</div>
           </td>
           <td class="px-4 py-3 text-center whitespace-nowrap">
-             <button (click)="deleteOrder(order.id)" class="text-red-500 hover:text-red-700 p-1 rounded-md hover:bg-red-50 transition" title="Xóa đơn hàng">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-             </button>
+            <div class="flex items-center justify-center gap-2">
+               <button (click)="editOrder(order)" class="text-blue-500 hover:text-blue-700 p-1 rounded-md hover:bg-blue-50 transition" title="Sửa thông tin đơn">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+               </button>
+               <button (click)="deleteOrder(order.id)" class="text-red-500 hover:text-red-700 p-1 rounded-md hover:bg-red-50 transition" title="Xóa đơn hàng">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+               </button>
+            </div>
           </td>
         </tr>
       </tbody>

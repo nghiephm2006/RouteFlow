@@ -35,6 +35,16 @@ namespace RouteFlow.Api.Controllers
             return Ok(result);
         }
 
+        [HttpGet("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetOrderById(Guid id)
+        {
+            var result = await _mediator.Send(new GetOrderByIdQuery(id));
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
+
         [HttpGet("pending")]
         public async Task<IActionResult> GetPendingOrders()
         {
@@ -47,6 +57,20 @@ namespace RouteFlow.Api.Controllers
         {
             var result = await _mediator.Send(new GetOrderStatsQuery());
             return Ok(result);
+        }
+
+        [HttpPut("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateOrder(Guid id, [FromBody] UpdateOrderCommand command)
+        {
+            if (id != command.Id) return BadRequest("Id mismatch.");
+            
+            var result = await _mediator.Send(command);
+            if (!result) return NotFound();
+            
+            return NoContent();
         }
 
         [HttpDelete("{id:guid}")]

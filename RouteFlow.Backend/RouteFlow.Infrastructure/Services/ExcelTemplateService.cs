@@ -16,27 +16,25 @@ namespace RouteFlow.Infrastructure.Services
             var worksheet = package.Workbook.Worksheets.Add("Orders");
 
             // Header Row
-            worksheet.Cells[1, 1].Value = "OrderCode";
-            worksheet.Cells[1, 2].Value = "CustomerName";
-            worksheet.Cells[1, 3].Value = "Address";
-            worksheet.Cells[1, 4].Value = "Latitude";
-            worksheet.Cells[1, 5].Value = "Longitude";
-            worksheet.Cells[1, 6].Value = "Note";
+            worksheet.Cells[1, 1].Value = "CustomerName";
+            worksheet.Cells[1, 2].Value = "Address";
+            worksheet.Cells[1, 3].Value = "Latitude";
+            worksheet.Cells[1, 4].Value = "Longitude";
+            worksheet.Cells[1, 5].Value = "Note";
 
             // Make header bold
-            using (var range = worksheet.Cells[1, 1, 1, 6])
+            using (var range = worksheet.Cells[1, 1, 1, 5])
             {
                 range.Style.Font.Bold = true;
                 range.AutoFitColumns();
             }
 
             // Example Row
-            worksheet.Cells[2, 1].Value = "ORD-001";
-            worksheet.Cells[2, 2].Value = "John Doe";
-            worksheet.Cells[2, 3].Value = "Hoan Kiem, Hanoi";
-            worksheet.Cells[2, 4].Value = 21.0285;
-            worksheet.Cells[2, 5].Value = 105.8048;
-            worksheet.Cells[2, 6].Value = "Deliver before 5 PM";
+            worksheet.Cells[2, 1].Value = "John Doe";
+            worksheet.Cells[2, 2].Value = "Landmark 81, 720A Dien Bien Phu, Binh Thanh, Ho Chi Minh";
+            worksheet.Cells[2, 3].Value = ""; // Leave blank so background geocoding will find it
+            worksheet.Cells[2, 4].Value = "";
+            worksheet.Cells[2, 5].Value = "Giao tai quay le tan";
 
             return package.GetAsByteArray();
         }

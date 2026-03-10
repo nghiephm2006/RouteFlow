@@ -99,3 +99,13 @@ _API Server và bảng đặc tả Swagger chạy mặc định tại: `http://l
 - **[TODO]** Chức năng (nút bấm) Forward chuyển tiếp góc nhìn sang Tab Bản đồ để xem nhanh vị trí của từng đơn hàng.
 - **[TODO]** Quản lý chi tiết Đơn hàng: Bổ sung Phone + Email khách hàng, tự động bắn Noti (thông báo/email) khi tài xế hoặc Admin chuyển trạng thái đơn.
 - **[TODO]** Mở rộng hệ thống Tự động gom nhóm (Auto-cluster) Đơn hàng theo lô/khu vực → Tạo ra nhiều Routes (tuyến đường) độc lập → Phân bổ cho nhiều Shipper để tăng tốc độ giao hàng.
+
+---
+
+## 🤖 Chuyển giao Ngữ cảnh AI (AI Context Handover)
+
+Dự án này được hỗ trợ phát triển bởi AI Assistant. Trong bộ Source Code có đính kèm file **`AI_CONTEXT.md`** chứa toàn bộ lược sử cấu trúc Hệ thống và các tiến độ công việc đang làm dở lõi.
+
+Nếu bạn clone source code này sang một máy tính/IDE khác và muốn AI tiếp tục hiểu dự án ngay lập tức, hãy Copy & Paste câu lệnh sau vào khung Chat của AI:
+
+> _"Chào bạn, hãy đọc kỹ file `AI_CONTEXT.md` trong thư mục gốc để nạp lại bối cảnh, sau đó làm tiếp cho tôi tính năng [Tên tính năng bạn muốn làm]"_

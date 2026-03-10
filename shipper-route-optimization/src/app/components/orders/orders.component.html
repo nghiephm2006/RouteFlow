@@ -1,0 +1,181 @@
+<div class="h-full flex flex-col bg-white p-6 shadow-xl rounded-xl">
+  <!-- Header & Stats -->
+  <div class="mb-6 flex justify-between items-center">
+    <div>
+      <h2 class="text-2xl font-bold text-[#1A365D]">Quản lý Đơn Giao Hàng</h2>
+      <p class="text-sm text-gray-500 mt-1">Hệ thống xử lý thông tin đơn hàng RouteFlow Backend</p>
+    </div>
+    
+    <div class="flex gap-4" *ngIf="stats">
+      <div class="bg-gray-50 border px-4 py-2 rounded-lg text-center">
+        <div class="text-xs text-gray-500 uppercase font-semibold">Tổng đơn</div>
+        <div class="text-xl font-bold text-gray-800">{{ stats.totalOrders }}</div>
+      </div>
+      <div class="bg-yellow-50 border border-yellow-100 px-4 py-2 rounded-lg text-center">
+        <div class="text-xs text-yellow-600 uppercase font-semibold">Đang chờ (Pending)</div>
+        <div class="text-xl font-bold text-yellow-700">{{ stats.pendingOrders }}</div>
+      </div>
+      <div class="bg-green-50 border border-green-100 px-4 py-2 rounded-lg text-center">
+        <div class="text-xs text-green-600 uppercase font-semibold">Đã giao</div>
+        <div class="text-xl font-bold text-green-700">{{ stats.deliveredOrders }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions Toolbar -->
+  <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border mb-4">
+    <div class="flex gap-3 items-center">
+      <button (click)="toggleAddForm()" [ngClass]="{'bg-[#1A365D] text-white': showAddForm, 'bg-white text-[#1A365D]': !showAddForm}" class="border border-[#1A365D] hover:bg-opacity-90 px-4 py-2 rounded-md text-sm font-medium transition flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Thêm Đơn
+      </button>
+
+      <label class="cursor-pointer bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-md text-sm font-medium transition flex items-center gap-2">
+        <svg *ngIf="!uploading" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        </svg>
+        <span *ngIf="uploading" class="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></span>
+        Import Excel
+        <input type="file" class="hidden" accept=".xlsx, .xls" (change)="onFileSelected($event)">
+      </label>
+
+      <button (click)="downloadTemplate()" class="text-sm text-[#1A365D] hover:underline flex items-center gap-1 font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        Tải Template
+      </button>
+    </div>
+
+    <!-- Nút kích hoạt RouteFlow -->
+    <div>
+      <button (click)="triggerRouting()" class="bg-[#F97316] hover:bg-[#ea6b12] text-white px-5 py-2 rounded-md font-semibold text-sm shadow-md transition flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+        </svg>
+        Tối ưu & Xếp Tuyến
+      </button>
+    </div>
+  </div>
+
+  <!-- Add Order Form -->
+  <div *ngIf="showAddForm" class="mb-4 bg-blue-50/50 border border-blue-100 rounded-lg shadow-sm p-4 animate-fadeIn">
+    <div class="flex justify-between items-center mb-3">
+      <h3 class="font-bold text-[#1A365D]">Nhập thông tin Đơn hàng</h3>
+      <button (click)="toggleAddForm()" class="text-gray-400 hover:text-gray-600 p-1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+    <form [formGroup]="orderForm" (ngSubmit)="submitOrder()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div>
+        <label class="block text-xs text-gray-500 font-medium mb-1">Mã Đơn *</label>
+        <input type="text" formControlName="orderCode" placeholder="Vd: ORD-001" class="w-full text-sm border-gray-300 rounded-md focus:ring-[#F97316] focus:border-[#F97316] p-2 py-1.5 border">
+      </div>
+      <div>
+        <label class="block text-xs text-gray-500 font-medium mb-1">Tên Khách Hàng *</label>
+        <input type="text" formControlName="customerName" placeholder="Tên khách hàng" class="w-full text-sm border-gray-300 rounded-md focus:ring-[#F97316] focus:border-[#F97316] p-2 py-1.5 border">
+      </div>
+      <div class="lg:col-span-2 relative">
+        <label class="block text-xs text-gray-500 font-medium mb-1">Địa chỉ giao hàng *</label>
+        <div class="relative">
+          <input type="text" formControlName="address" (blur)="onAddressBlur()" placeholder="Nhập địa chỉ chi tiết (hệ thống tự động tìm toạ độ)..." autocomplete="off" class="w-full text-sm border-gray-300 rounded-md focus:ring-[#F97316] focus:border-[#F97316] p-2 py-1.5 border pr-8" [ngClass]="{'border-green-500 bg-green-50/30': orderForm.get('latitude')?.value}">
+          
+          <div *ngIf="orderForm.get('latitude')?.value" class="absolute right-2 top-1/2 -translate-y-1/2 text-green-500" title="Đã xác định được toạ độ">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </div>
+        
+        <!-- Suggestions Dropdown -->
+        <ul *ngIf="showDropdown && suggestions.length > 0" class="absolute z-50 w-full bg-white border border-gray-200 mt-1 rounded-md shadow-lg max-h-48 overflow-y-auto text-sm left-0">
+          <li *ngFor="let suggestion of suggestions" (mousedown)="$event.preventDefault(); selectAddressSuggestion(suggestion)"
+              class="px-3 py-2 hover:bg-orange-50 cursor-pointer border-b last:border-b-0 transition-colors text-left flex flex-col">
+            <span class="font-medium text-gray-800 line-clamp-1">{{suggestion.display_name.split(',')[0]}}</span>
+            <span class="text-xs text-gray-500 line-clamp-1 mt-0.5">{{suggestion.display_name.substring(suggestion.display_name.indexOf(',') + 1).trim()}}</span>
+          </li>
+        </ul>
+        <div *ngIf="!orderForm.get('latitude')?.value && orderForm.get('address')?.value" class="text-xs text-orange-500 mt-1 flex gap-1 items-start">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          ⚠️ Bạn vui lòng chọn một địa chỉ cụ thể từ danh sách gợi ý rơi xuống để lấy được (Lat, Lng) chính xác nhé!
+        </div>
+      </div>
+      <div class="lg:col-span-3">
+        <label class="block text-xs text-gray-500 font-medium mb-1">Ghi chú</label>
+        <input type="text" formControlName="note" placeholder="Yêu cầu thêm..." class="w-full text-sm border-gray-300 rounded-md focus:ring-[#F97316] focus:border-[#F97316] p-2 py-1.5 border">
+      </div>
+      <div class="flex items-end justify-end">
+        <button type="submit" [disabled]="orderForm.invalid || loading" class="w-full bg-[#1A365D] text-white hover:bg-blue-900 px-4 py-1.5 rounded-md text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2">
+          Lưu Đơn Mới
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Data Table -->
+  <div class="flex-1 overflow-auto border rounded-lg bg-white relative">
+    
+    <!-- Loading overlay -->
+    <div *ngIf="loading" class="absolute inset-0 bg-white/70 backdrop-blur-sm z-10 flex items-center justify-center">
+      <div class="w-8 h-8 border-4 border-[#1A365D] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+
+    <table class="w-full text-left text-sm">
+      <thead class="bg-[#1A365D] text-white sticky top-0 z-0">
+        <tr>
+          <th class="px-4 py-3 font-medium whitespace-nowrap">Mã Đơn</th>
+          <th class="px-4 py-3 font-medium">Khách Hàng</th>
+          <th class="px-4 py-3 font-medium w-2/5">Địa chỉ & Toạ độ</th>
+          <th class="px-4 py-3 font-medium text-center whitespace-nowrap">Trạng thái</th>
+          <th class="px-4 py-3 font-medium">Ghi chú</th>
+          <th class="px-4 py-3 font-medium text-center whitespace-nowrap">Hành động</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y text-gray-700">
+        <tr *ngIf="orders.length === 0 && !loading" class="bg-gray-50">
+          <td colspan="6" class="px-4 py-12 text-center text-gray-500 italic">
+            Chưa có đơn hàng nào trong ca làm việc.<br/>
+            Vui lòng <strong class="text-[#1A365D]">Import từ Excel</strong> để bắt đầu lên tuyến.
+          </td>
+        </tr>
+
+        <tr *ngFor="let order of orders" class="hover:bg-gray-50 transition-colors">
+          <td class="px-4 py-3 font-medium text-[#1A365D] whitespace-nowrap">{{ order.orderCode }}</td>
+          <td class="px-4 py-3 rounded break-words min-w-[120px]">{{ order.customerName }}</td>
+          <td class="px-4 py-3">
+            <div class="whitespace-normal min-w-[200px] text-sm leading-relaxed">{{ order.address }}</div>
+            <div class="text-xs text-gray-400 font-mono mt-1">
+              <span *ngIf="order.latitude && order.longitude">
+                {{ order.latitude | number:'1.5-5' }}, {{ order.longitude | number:'1.5-5' }}
+              </span>
+              <span *ngIf="!order.latitude || !order.longitude" class="italic opacity-70">
+                Chưa có tọa độ
+              </span>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-center whitespace-nowrap">
+            <span class="px-2 py-1 text-xs font-semibold rounded-full" [ngClass]="getStatusBadgeClass(order.status)">
+              {{ getStatusName(order.status) }}
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            <div class="whitespace-normal min-w-[150px] text-gray-500 break-words">{{ order.note || '-' }}</div>
+          </td>
+          <td class="px-4 py-3 text-center whitespace-nowrap">
+             <button (click)="deleteOrder(order.id)" class="text-red-500 hover:text-red-700 p-1 rounded-md hover:bg-red-50 transition" title="Xóa đơn hàng">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+             </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

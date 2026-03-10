@@ -1,0 +1,77 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface Order {
+  id: string;
+  orderCode: string;
+  customerName: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  note: string;
+  status: OrderStatus;
+  createdAt: string;
+}
+
+export enum OrderStatus {
+  Pending = 0,
+  Routing = 1,
+  Assigned = 2,
+  Delivered = 3
+}
+
+export interface OrderStats {
+  totalOrders: number;
+  pendingOrders: number;
+  routingOrders: number;
+  deliveredOrders: number;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class OrderService {
+  private readonly apiUrl = 'https://localhost:7141/api/orders';
+  private readonly routesUrl = 'https://localhost:7141/api/routes';
+
+  constructor(private http: HttpClient) {}
+
+  getOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(this.apiUrl);
+  }
+
+  getPendingOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/pending`);
+  }
+
+  getOrderStats(): Observable<OrderStats> {
+    return this.http.get<OrderStats>(`${this.apiUrl}/stats`);
+  }
+
+  createOrder(order: Partial<Order>): Observable<string> {
+    return this.http.post<string>(this.apiUrl, order);
+  }
+
+  deleteOrder(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  importExcel(file: File): Observable<{ message: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ message: string }>(`${this.apiUrl}/import`, formData);
+  }
+
+  downloadTemplate(): void {
+    window.open(`${this.apiUrl}/template`, '_blank');
+  }
+
+  getRouteOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.routesUrl}/orders`);
+  }
+
+  clusterOrders(orders: Order[], numberOfClusters: number): Observable<any[]> {
+    return this.http.post<any[]>(`${this.routesUrl}/cluster`, { orders, numberOfClusters });
+  }
+}

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, Input } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Point, OptimizedRoute } from '../../models/route.model';
@@ -138,8 +138,9 @@ import { of } from 'rxjs';
     </div>
   `
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnChanges {
   @Input() routeData: OptimizedRoute | null = null;
+  @Input() routePoints: Point[] = [];
   @Output() calculate = new EventEmitter<Point[]>();
   @Output() pointSelected = new EventEmitter<Point>();
   isLoading = false;
@@ -156,10 +157,34 @@ export class SidebarComponent {
       points: this.fb.array([])
     });
     
-    // Add default points
+    // Add default points for fresh load
     this.addPointObject('Kho Trung Tâm', 'Hồ Chí Minh');
     this.addPointObject('Cửa Hàng A', 'Hồ Gươm, Hồ Chí Minh');
     this.addPointObject('Lanmark 81', 'Lanmark 81, Hồ Chí Minh');
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['routePoints'] && changes['routePoints'].currentValue) {
+      const points = changes['routePoints'].currentValue as Point[];
+      if (points && points.length > 0) {
+        this.loadPointsFromOrders(points);
+      }
+    }
+  }
+
+  private loadPointsFromOrders(points: Point[]) {
+    // Clear existing form array
+    while (this.points.length !== 0) {
+      this.points.removeAt(0);
+    }
+
+    // Luôn cần có điểm xuất phát (Kho)
+    this.addPointObject('Kho Tổng', 'Hồ Chí Minh');
+
+    // Thêm các orders vào làm điểm đến/waypoints
+    points.forEach(p => {
+      this.addPointObject(p.name, p.address, p.lat, p.lng, p.id);
+    });
   }
 
   // <... skipping unchanged lines for brevity ...>
@@ -169,14 +194,14 @@ export class SidebarComponent {
     return this.routeForm.get('points') as FormArray;
   }
 
-  addPointObject(name: string = '', address: string = '') {
-    const id = Math.random().toString(36).substring(2, 9);
+  addPointObject(name: string = '', address: string = '', lat: number | null = null, lng: number | null = null, forceId: string | null = null) {
+    const id = forceId || Math.random().toString(36).substring(2, 9);
     const group = this.fb.group({
       id: [id],
       name: [name],
       address: [address, Validators.required],
-      lat: [null],
-      lng: [null]
+      lat: [lat],
+      lng: [lng]
     });
 
     // Handle address autocomplete

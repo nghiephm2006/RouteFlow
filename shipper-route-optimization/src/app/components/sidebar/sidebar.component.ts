@@ -13,16 +13,8 @@ import { of } from 'rxjs';
   template: `
     <div class="h-full flex flex-col bg-[#F8FAFC] shadow-xl w-full sm:w-[500px] md:w-[420px] border-r border-gray-200 z-[2000] overflow-hidden relative font-sans">
       <!-- Header Section -->
-      <div class="px-6 py-5 bg-white relative shrink-0 border-b border-gray-100 flex flex-col gap-1">
-        <div class="flex items-center gap-3">
-          <img src="/logo-beside.png" alt="RouteFlow Logo" class="h-8 object-contain" />
-          <h2 class="text-2xl font-extrabold text-[#1A365D]">
-            RouteFlow
-          </h2>
-        </div>
-        <p class="text-[13px] text-gray-500">
-          Smart Delivery Route Optimizer
-        </p>
+      <div class="px-6 py-5 bg-white relative shrink-0 border-b border-gray-100 flex flex-col gap-2 z-10 shadow-sm sticky top-0">
+        <img src="/logo-beside.png" alt="RouteFlow Logo" class="h-auto w-auto object-contain" />
       </div>
 
       <!-- Main Form Content -->
@@ -165,9 +157,9 @@ export class SidebarComponent {
     });
     
     // Add default points
-    this.addPointObject('Kho Trung Tâm', 'Hà Nội');
-    this.addPointObject('Cửa Hàng A', 'Hồ Hoàn Kiếm, Hà Nội');
-    this.addPointObject('Tòa Nhà B', 'Vincom Center Bà Triệu, Hà Nội');
+    this.addPointObject('Kho Trung Tâm', 'Hồ Chí Minh');
+    this.addPointObject('Cửa Hàng A', 'Hồ Gươm, Hồ Chí Minh');
+    this.addPointObject('Lanmark 81', 'Lanmark 81, Hồ Chí Minh');
   }
 
   // <... skipping unchanged lines for brevity ...>

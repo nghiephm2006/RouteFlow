@@ -44,6 +44,7 @@ export class MapComponent implements OnInit, OnDestroy {
   private map!: L.Map;
   private markersLayer: L.LayerGroup = L.layerGroup();
   private routeLayer: L.GeoJSON | L.Polyline | null = null;
+  private userLocationMarker: L.Marker | null = null;
   currentRoute: OptimizedRoute | null = null;
 
   // No longer using an array of colors since we use SVG icons
@@ -73,6 +74,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initMap();
+    this.requestUserLocation();
   }
 
   ngOnDestroy(): void {
@@ -82,9 +84,9 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   private initMap(): void {
-    // Default center to Hanoi
+    // Default center to Ho Chi Minh City (Lat: 10.762622, Lng: 106.660172)
     this.map = L.map('map', {
-      center: [21.0285, 105.8048],
+      center: [10.762622, 106.660172],
       zoom: 13,
       zoomControl: false
     });
@@ -97,6 +99,50 @@ export class MapComponent implements OnInit, OnDestroy {
     }).addTo(this.map);
 
     this.markersLayer.addTo(this.map);
+  }
+
+  private requestUserLocation(): void {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          if (this.map) {
+            // Only fly to user location if there's no route currently displayed
+            if (!this.currentRoute) {
+              this.map.setView([lat, lng], 14, { animate: true });
+            }
+            
+            // Add a pulsing blue dot for the user's location
+            if (this.userLocationMarker) {
+              this.map.removeLayer(this.userLocationMarker);
+            }
+            
+            const userIcon = L.divIcon({
+              html: `
+                <div class="relative flex items-center justify-center w-full h-full">
+                  <span class="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping bg-blue-400"></span>
+                  <span class="relative inline-flex w-4 h-4 rounded-full bg-blue-600 border-2 border-white shadow-md"></span>
+                </div>
+              `,
+              className: 'bg-transparent border-0',
+              iconSize: [24, 24],
+              iconAnchor: [12, 12],
+              popupAnchor: [0, -12]
+            });
+            
+            this.userLocationMarker = L.marker([lat, lng], { icon: userIcon })
+              .bindPopup('<span class="font-bold text-[#1A365D] text-[13px]">📍 Vị trí hiện tại của bạn</span>')
+              .addTo(this.map);
+          }
+        },
+        (error) => {
+          console.log('Geolocation error or denied:', error.message);
+          // Fails silently, stays in default Ho Chi Minh City
+        },
+        { timeout: 10000 }
+      );
+    }
   }
 
   private drawRoute(route: OptimizedRoute): void {

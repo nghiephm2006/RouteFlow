@@ -95,3 +95,7 @@ _API Server và bảng đặc tả Swagger chạy mặc định tại: `http://l
 - Giao việc tự động: Chia nhóm đơn hàng (Clustering) các điểm giao gần nhau cho các tài xế (Shipper) khác nhau để tối đa hoá hiệu suất sử dụng Thuật toán K-Means.
 - Realtime Tracking: Thêm WebSockets (SignalR) bắn toạ độ GPS Shipper trên đường giao.
 - Dashboard Report (Chart.js): Thêm biểu đồ tổng kết số đơn hoàn thành theo ngày ngay trên Frontend.
+- **[TODO]** Tính năng Cập nhật trạng thái đơn hàng (Đang giao, Giao thành công, Khách hẹn lại,...).
+- **[TODO]** Chức năng (nút bấm) Forward chuyển tiếp góc nhìn sang Tab Bản đồ để xem nhanh vị trí của từng đơn hàng.
+- **[TODO]** Quản lý chi tiết Đơn hàng: Bổ sung Phone + Email khách hàng, tự động bắn Noti (thông báo/email) khi tài xế hoặc Admin chuyển trạng thái đơn.
+- **[TODO]** Mở rộng hệ thống Tự động gom nhóm (Auto-cluster) Đơn hàng theo lô/khu vực → Tạo ra nhiều Routes (tuyến đường) độc lập → Phân bổ cho nhiều Shipper để tăng tốc độ giao hàng.

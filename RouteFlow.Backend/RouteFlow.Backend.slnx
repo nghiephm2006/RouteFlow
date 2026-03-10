@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="RouteFlow.Api/RouteFlow.Api.csproj" />
+  <Project Path="RouteFlow.Application/RouteFlow.Application.csproj" />
+  <Project Path="RouteFlow.Domain/RouteFlow.Domain.csproj" />
+  <Project Path="RouteFlow.Infrastructure/RouteFlow.Infrastructure.csproj" />
+</Solution>

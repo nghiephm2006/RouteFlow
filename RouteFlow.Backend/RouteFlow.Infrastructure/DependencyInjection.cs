@@ -1,0 +1,32 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using RouteFlow.Application.Interfaces;
+using RouteFlow.Domain.Interfaces;
+using RouteFlow.Infrastructure.Persistence;
+using RouteFlow.Infrastructure.Persistence.Repositories;
+using RouteFlow.Infrastructure.Services;
+
+namespace RouteFlow.Infrastructure
+{
+    public static class DependencyInjection
+    {
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        {
+            // Use local DB setup or in-memory
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(
+                    configuration.GetConnectionString("DefaultConnection"),
+                    b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
+
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddTransient<IExcelImportService, ExcelImportService>();
+            services.AddTransient<IExcelTemplateService, ExcelTemplateService>();
+            services.AddTransient<IClusterService, ClusterService>();
+
+            return services;
+        }
+    }
+}

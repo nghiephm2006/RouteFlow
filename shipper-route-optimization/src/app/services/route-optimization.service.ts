@@ -83,8 +83,8 @@ export class RouteOptimizationService {
         const coords = await this.geocodeAddress(point.address || point.name);
         geocoded.push({
           ...point,
-          lat: coords?.lat || 21.0285, // Default Hanoi
-          lng: coords?.lng || 105.8048 // Default Hanoi
+          lat: coords?.lat || 10.7626, // Default HCM
+          lng: coords?.lng || 106.6601 // Default HCM
         });
         
         // Politeness delay for Nominatim (1 request per second is recommended)

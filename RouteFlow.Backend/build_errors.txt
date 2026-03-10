@@ -1,0 +1,20 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  RouteFlow.Domain -> D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Domain\bin\Debug\net10.0\RouteFlow.Domain.dll
+  RouteFlow.Application -> D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Application\bin\Debug\net10.0\RouteFlow.Application.dll
+  RouteFlow.Infrastructure -> D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Infrastructure\bin\Debug\net10.0\RouteFlow.Infrastructure.dll
+D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\Controllers\RoutesController.cs(41,31): warning CS8618: Non-nullable property 'Orders' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\RouteFlow.Api.csproj]
+D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\Program.cs(16,18): error CS1061: 'IServiceCollection' does not contain a definition for 'AddSwaggerGen' and no accessible extension method 'AddSwaggerGen' accepting a first argument of type 'IServiceCollection' could be found (are you missing a using directive or an assembly reference?) [D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\RouteFlow.Api.csproj]
+D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\Program.cs(37,9): error CS1061: 'WebApplication' does not contain a definition for 'UseSwagger' and no accessible extension method 'UseSwagger' accepting a first argument of type 'WebApplication' could be found (are you missing a using directive or an assembly reference?) [D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\RouteFlow.Api.csproj]
+D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\Program.cs(38,9): error CS1061: 'WebApplication' does not contain a definition for 'UseSwaggerUI' and no accessible extension method 'UseSwaggerUI' accepting a first argument of type 'WebApplication' could be found (are you missing a using directive or an assembly reference?) [D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\RouteFlow.Api.csproj]
+
+Build FAILED.
+
+D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\Controllers\RoutesController.cs(41,31): warning CS8618: Non-nullable property 'Orders' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\RouteFlow.Api.csproj]
+D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\Program.cs(16,18): error CS1061: 'IServiceCollection' does not contain a definition for 'AddSwaggerGen' and no accessible extension method 'AddSwaggerGen' accepting a first argument of type 'IServiceCollection' could be found (are you missing a using directive or an assembly reference?) [D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\RouteFlow.Api.csproj]
+D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\Program.cs(37,9): error CS1061: 'WebApplication' does not contain a definition for 'UseSwagger' and no accessible extension method 'UseSwagger' accepting a first argument of type 'WebApplication' could be found (are you missing a using directive or an assembly reference?) [D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\RouteFlow.Api.csproj]
+D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\Program.cs(38,9): error CS1061: 'WebApplication' does not contain a definition for 'UseSwaggerUI' and no accessible extension method 'UseSwaggerUI' accepting a first argument of type 'WebApplication' could be found (are you missing a using directive or an assembly reference?) [D:\Works\Personal\RouteFlow\RouteFlow.Backend\RouteFlow.Api\RouteFlow.Api.csproj]
+    1 Warning(s)
+    3 Error(s)
+
+Time Elapsed 00:00:01.23

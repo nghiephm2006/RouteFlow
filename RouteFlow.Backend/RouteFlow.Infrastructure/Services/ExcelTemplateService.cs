@@ -8,7 +8,6 @@ namespace RouteFlow.Infrastructure.Services
     {
         public ExcelTemplateService()
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         }
 
         public byte[] GenerateTemplate()

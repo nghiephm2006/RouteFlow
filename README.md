@@ -99,6 +99,8 @@ _API Server và bảng đặc tả Swagger chạy mặc định tại: `http://l
 - **[TODO]** Chức năng (nút bấm) Forward chuyển tiếp góc nhìn sang Tab Bản đồ để xem nhanh vị trí của từng đơn hàng.
 - **[TODO]** Quản lý chi tiết Đơn hàng: Bổ sung Phone + Email khách hàng, tự động bắn Noti (thông báo/email) khi tài xế hoặc Admin chuyển trạng thái đơn.
 - **[TODO]** Mở rộng hệ thống Tự động gom nhóm (Auto-cluster) Đơn hàng theo lô/khu vực → Tạo ra nhiều Routes (tuyến đường) độc lập → Phân bổ cho nhiều Shipper để tăng tốc độ giao hàng.
+- **[TODO]** Triển khai (Deployment): Đóng gói Docker, cấu hình Azure SQL Database và deploy Frontend lên Vercel/Netlify.
+- **[TODO - Optional]** Chuyển đổi sang Google Maps Platform: Nâng cấp trải nghiệm bản đồ và dữ liệu địa chỉ chi tiết hơn tại VN.
 
 ---
 

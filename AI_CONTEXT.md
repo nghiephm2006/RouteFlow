@@ -42,6 +42,8 @@ Dự án RouteFlow giải quyết bài toán Quản lý & Tối ưu tuyến đư
 3. Khung bảng (Table) Orders hiện thông tin chi tiết: Mã đơn, Khách hàng, Toạ độ, Ghi chú.
 4. Nút bấm tương tác trên bảng: Xoá Đơn, Sửa Đơn, Import Excel, Tải Template, Làm mới (có Debounce 2 giây).
 5. **Add/Edit Order Form**: Nhập tay tên/địa chỉ. Ô địa chỉ có cơ chế Autocomplete gọi thẳng Nominatim với custom Dropdown.
+6. **Deployment**: Triển khai bản sản xuất (Production). Đóng gói Docker cho Backend, kết nối Azure SQL Database (đã có account sinh viên), và host Frontend lên Vercel.
+7. **Google Maps Migration (Optional)**: Chuyển đổi từ Leaflet/Nominatim sang Google Maps Platform (Maps, Places, Geocoding, Directions API) để tối ưu dữ liệu tại Việt Nam.
 
 ---
 

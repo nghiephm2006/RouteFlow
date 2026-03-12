@@ -10,6 +10,8 @@ namespace RouteFlow.Application.Features.Orders.Commands
 {
     public record CreateOrderCommand(
         string CustomerName,
+        string Phone,
+        string Email,
         string Address,
         double Latitude,
         double Longitude,
@@ -41,6 +43,8 @@ namespace RouteFlow.Application.Features.Orders.Commands
         {
             var order = Order.Create(
                 request.CustomerName,
+                request.Phone,
+                request.Email,
                 request.Address,
                 request.Latitude,
                 request.Longitude,

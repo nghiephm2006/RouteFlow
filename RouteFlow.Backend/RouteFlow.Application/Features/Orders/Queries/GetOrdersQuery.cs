@@ -27,6 +27,8 @@ namespace RouteFlow.Application.Features.Orders.Queries
                 Id = o.Id,
                 OrderCode = o.OrderCode,
                 CustomerName = o.CustomerName,
+                Phone = o.Phone,
+                Email = o.Email,
                 Address = o.Address,
                 Latitude = o.Latitude,
                 Longitude = o.Longitude,

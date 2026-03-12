@@ -6,6 +6,8 @@ export interface Order {
   id: string;
   orderCode: string;
   customerName: string;
+  phone: string;
+  email: string;
   address: string;
   latitude: number;
   longitude: number;
@@ -59,6 +61,10 @@ export class OrderService {
 
   updateOrder(id: string, order: Partial<Order>): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/${id}`, order);
+  }
+
+  updateOrderStatus(id: string, newStatus: OrderStatus): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/${id}/status`, { id, newStatus });
   }
 
   deleteOrder(id: string): Observable<void> {

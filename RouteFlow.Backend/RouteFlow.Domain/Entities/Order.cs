@@ -10,6 +10,8 @@ namespace RouteFlow.Domain.Entities
         public Guid Id { get; private set; }
         public string OrderCode { get; private set; }
         public string CustomerName { get; private set; }
+        public string Phone { get; private set; }
+        public string Email { get; private set; }
         public string Address { get; private set; }
         public double Latitude { get; private set; }
         public double Longitude { get; private set; }
@@ -17,9 +19,18 @@ namespace RouteFlow.Domain.Entities
         public OrderStatus Status { get; private set; }
         public DateTime CreatedAt { get; private set; }
 
-        private Order() { } // EF Core
+        private Order()
+        {
+            // EF Core - Initialize string properties to suppress nullable warnings
+            OrderCode = string.Empty;
+            CustomerName = string.Empty;
+            Phone = string.Empty;
+            Email = string.Empty;
+            Address = string.Empty;
+            Note = string.Empty;
+        }
 
-        public static Order Create(string customerName, string address, double latitude, double longitude, string note)
+        public static Order Create(string customerName, string phone, string email, string address, double latitude, double longitude, string note)
         {
             var shortId = Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper();
             var timePrefix = DateTime.UtcNow.ToString("yyMMdd");
@@ -30,6 +41,8 @@ namespace RouteFlow.Domain.Entities
                 Id = Guid.NewGuid(),
                 OrderCode = orderCode,
                 CustomerName = customerName,
+                Phone = phone ?? string.Empty,
+                Email = email ?? string.Empty,
                 Address = address,
                 Latitude = latitude,
                 Longitude = longitude,
@@ -59,13 +72,20 @@ namespace RouteFlow.Domain.Entities
             Longitude = longitude;
         }
 
-        public void UpdateDetails(string customerName, string address, double latitude, double longitude, string note)
+        public void UpdateDetails(string customerName, string phone, string email, string address, double latitude, double longitude, string note)
         {
             CustomerName = customerName;
+            Phone = phone ?? string.Empty;
+            Email = email ?? string.Empty;
             Address = address;
             Latitude = latitude;
             Longitude = longitude;
             Note = note;
+        }
+
+        public void UpdateStatus(OrderStatus newStatus)
+        {
+            Status = newStatus;
         }
     }
 }

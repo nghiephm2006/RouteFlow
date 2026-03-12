@@ -29,12 +29,27 @@ namespace RouteFlow.Infrastructure.Services
                 range.AutoFitColumns();
             }
 
-            // Example Row
-            worksheet.Cells[2, 1].Value = "John Doe";
-            worksheet.Cells[2, 2].Value = "Landmark 81, 720A Dien Bien Phu, Binh Thanh, Ho Chi Minh";
-            worksheet.Cells[2, 3].Value = ""; // Leave blank so background geocoding will find it
-            worksheet.Cells[2, 4].Value = "";
-            worksheet.Cells[2, 5].Value = "Giao tai quay le tan";
+            // 5 sample rows - real HCMC addresses with accurate coordinates
+            var samples = new[]
+            {
+                new { Name = "Nguyễn Văn An",   Address = "Landmark 81, 720A Điện Biên Phủ, Bình Thạnh, TP.HCM",          Lat = 10.7951,  Lng = 106.7220, Note = "Giao tại quầy lễ tân tầng 1" },
+                new { Name = "Trần Thị Bình",   Address = "Bến Thành Market, 1 Lê Lợi, Quận 1, TP.HCM",                   Lat = 10.7727,  Lng = 106.6980, Note = "Gọi điện trước khi giao" },
+                new { Name = "Lê Minh Cường",   Address = "Vincom Center Đồng Khởi, 72 Lê Thánh Tôn, Quận 1, TP.HCM",    Lat = 10.7769,  Lng = 106.7031, Note = "Giao giờ hành chính" },
+                new { Name = "Phạm Thu Hà",     Address = "Crescent Mall, 101 Tôn Dật Tiên, Phú Mỹ Hưng, Quận 7, TP.HCM",Lat = 10.7290,  Lng = 106.7218, Note = "Để tại bảo vệ" },
+                new { Name = "Hoàng Quốc Tuấn", Address = "Aeon Mall Tân Phú, 30 Bờ Bao Tân Thắng, Tân Phú, TP.HCM",     Lat = 10.7960,  Lng = 106.6223, Note = "Tầng B1 cổng chính" },
+            };
+
+            for (int i = 0; i < samples.Length; i++)
+            {
+                int row = i + 2;
+                worksheet.Cells[row, 1].Value = samples[i].Name;
+                worksheet.Cells[row, 2].Value = samples[i].Address;
+                worksheet.Cells[row, 3].Value = samples[i].Lat;
+                worksheet.Cells[row, 4].Value = samples[i].Lng;
+                worksheet.Cells[row, 5].Value = samples[i].Note;
+            }
+
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
 
             return package.GetAsByteArray();
         }

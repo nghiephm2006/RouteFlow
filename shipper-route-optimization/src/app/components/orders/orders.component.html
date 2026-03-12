@@ -82,6 +82,14 @@
         <label class="block text-xs text-gray-500 font-medium mb-1">Tên Khách Hàng *</label>
         <input type="text" formControlName="customerName" placeholder="Tên khách hàng" class="w-full text-sm border-gray-300 rounded-md focus:ring-[#F97316] focus:border-[#F97316] p-2 py-1.5 border">
       </div>
+      <div class="lg:col-span-1">
+        <label class="block text-xs text-gray-500 font-medium mb-1">Số điện thoại</label>
+        <input type="tel" formControlName="phone" placeholder="0901234567" class="w-full text-sm border-gray-300 rounded-md focus:ring-[#F97316] focus:border-[#F97316] p-2 py-1.5 border">
+      </div>
+      <div class="lg:col-span-1">
+        <label class="block text-xs text-gray-500 font-medium mb-1">Email</label>
+        <input type="email" formControlName="email" placeholder="email@example.com" class="w-full text-sm border-gray-300 rounded-md focus:ring-[#F97316] focus:border-[#F97316] p-2 py-1.5 border">
+      </div>
       <div class="lg:col-span-2 relative">
         <label class="block text-xs text-gray-500 font-medium mb-1">Địa chỉ giao hàng *</label>
         <div class="relative">
@@ -109,6 +117,7 @@
           ⚠️ Bạn vui lòng chọn một địa chỉ cụ thể từ danh sách gợi ý rơi xuống để lấy được (Lat, Lng) chính xác nhé!
         </div>
       </div>
+      <!-- Status field: only shown when editing an existing order -->
       <div class="lg:col-span-2">
         <label class="block text-xs text-gray-500 font-medium mb-1">Ghi chú</label>
         <input type="text" formControlName="note" placeholder="Yêu cầu thêm..." class="w-full text-sm border-gray-300 rounded-md focus:ring-[#F97316] focus:border-[#F97316] p-2 py-1.5 border">
@@ -134,6 +143,7 @@
         <tr>
           <th class="px-4 py-3 font-medium whitespace-nowrap">Mã Đơn</th>
           <th class="px-4 py-3 font-medium">Khách Hàng</th>
+          <th class="px-4 py-3 font-medium whitespace-nowrap">SĐT</th>
           <th class="px-4 py-3 font-medium w-2/5">Địa chỉ & Toạ độ</th>
           <th class="px-4 py-3 font-medium text-center whitespace-nowrap">Trạng thái</th>
           <th class="px-4 py-3 font-medium">Ghi chú</th>
@@ -151,6 +161,7 @@
         <tr *ngFor="let order of orders" class="hover:bg-gray-50 transition-colors">
           <td class="px-4 py-3 font-medium text-[#1A365D] whitespace-nowrap">{{ order.orderCode }}</td>
           <td class="px-4 py-3 rounded break-words min-w-[120px]">{{ order.customerName }}</td>
+          <td class="px-4 py-3 whitespace-nowrap text-gray-500">{{ order.phone || '-' }}</td>
           <td class="px-4 py-3">
             <div class="whitespace-normal min-w-[200px] text-sm leading-relaxed">{{ order.address }}</div>
             <div class="text-xs text-gray-400 font-mono mt-1">
@@ -163,20 +174,49 @@
             </div>
           </td>
           <td class="px-4 py-3 text-center whitespace-nowrap">
-            <span class="px-2 py-1 text-xs font-semibold rounded-full" [ngClass]="getStatusBadgeClass(order.status)">
-              {{ getStatusName(order.status) }}
-            </span>
+            <!-- Click badge to toggle inline status editor -->
+            <div class="inline-flex flex-col items-center gap-1">
+              <span
+                *ngIf="!showStatusEdit[order.id]"
+                (click)="toggleStatusEdit(order.id)"
+                class="px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer hover:opacity-80 transition"
+                [ngClass]="getStatusBadgeClass(order.status)"
+                title="Click để thay đổi trạng thái">
+                {{ getStatusName(order.status) }} ✏️
+              </span>
+              <select
+                *ngIf="showStatusEdit[order.id]"
+                [id]="'status-select-' + order.id"
+                [value]="order.status"
+                (change)="updateOrderStatus(order, +$any($event.target).value)"
+                (blur)="onStatusBlur(order.id)"
+                class="text-xs border border-gray-300 rounded-md px-2 py-1 bg-white focus:ring-1 focus:ring-[#F97316] focus:border-[#F97316] min-w-[130px]">
+                <option [value]="0">Chờ xử lý</option>
+                <option [value]="1">Đang xếp tuyến</option>
+                <option [value]="2">Đã giao tài xế</option>
+                <option [value]="3">Đã giao hàng</option>
+              </select>
+            </div>
           </td>
           <td class="px-4 py-3">
             <div class="whitespace-normal min-w-[150px] text-gray-500 break-words">{{ order.note || '-' }}</div>
           </td>
           <td class="px-4 py-3 text-center whitespace-nowrap">
             <div class="flex items-center justify-center gap-2">
+               <!-- Forward to Map -->
+               <button (click)="forwardOrderToMap(order)" class="text-green-600 hover:text-green-800 p-1 rounded-md hover:bg-green-50 transition" title="Xem trên bản đồ">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+               </button>
+               <!-- Edit -->
                <button (click)="editOrder(order)" class="text-blue-500 hover:text-blue-700 p-1 rounded-md hover:bg-blue-50 transition" title="Sửa thông tin đơn">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                   </svg>
                </button>
+               <!-- Delete -->
                <button (click)="deleteOrder(order.id)" class="text-red-500 hover:text-red-700 p-1 rounded-md hover:bg-red-50 transition" title="Xóa đơn hàng">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

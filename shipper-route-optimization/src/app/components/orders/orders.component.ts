@@ -21,6 +21,7 @@ export class OrdersComponent implements OnInit {
   showAddForm: boolean = false;
   orderForm: FormGroup;
   editingOrderId: string | null = null;
+  showStatusEdit: { [id: string]: boolean } = {};
   
   suggestions: any[] = [];
   showDropdown: boolean = false;
@@ -28,6 +29,7 @@ export class OrdersComponent implements OnInit {
   isRefreshing: boolean = false;
 
   @Output() routePendingOrders = new EventEmitter<Order[]>();
+  @Output() forwardToMap = new EventEmitter<Order>();
 
   constructor(
     private orderService: OrderService, 
@@ -37,6 +39,8 @@ export class OrdersComponent implements OnInit {
   ) {
     this.orderForm = this.fb.group({
       customerName: ['', Validators.required],
+      phone: [''],
+      email: [''],
       address: ['', Validators.required],
       latitude: [null],
       longitude: [null],
@@ -79,39 +83,80 @@ export class OrdersComponent implements OnInit {
   }
 
   editOrder(order: Order): void {
-    // Open form and patch values
     this.showAddForm = true;
     this.editingOrderId = order.id;
     this.orderForm.patchValue({
       customerName: order.customerName,
+      phone: order.phone || '',
+      email: order.email || '',
       address: order.address,
       latitude: order.latitude !== 0 ? order.latitude : null,
       longitude: order.longitude !== 0 ? order.longitude : null,
       note: order.note
     });
-    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  toggleStatusEdit(id: string): void {
+    Object.keys(this.showStatusEdit).forEach(k => { this.showStatusEdit[k] = false; });
+    this.showStatusEdit[id] = true;
+    // Auto-focus after *ngIf renders the <select>
+    setTimeout(() => {
+      const sel = document.getElementById(`status-select-${id}`) as HTMLSelectElement;
+      if (sel) sel.focus();
+    }, 0);
+  }
+
+  onStatusBlur(id: string): void {
+    // Small delay so (change) fires before blur closes the select
+    setTimeout(() => { this.showStatusEdit[id] = false; }, 150);
+  }
+
+  updateOrderStatus(order: Order, newStatus: OrderStatus): void {
+    this.showStatusEdit[order.id] = false;
+    if (order.status === newStatus) return; // no change
+
+    const statusName = this.getStatusName(newStatus);
+    const confirmed = confirm(
+      `Xác nhận thay đổi trạng thái đơn "${order.orderCode}" sang:\n👉 ${statusName}`
+    );
+    if (!confirmed) return;
+
+    this.orderService.updateOrderStatus(order.id, newStatus).subscribe({
+      next: () => {
+        this.loadOrders();
+        this.loadStats();
+      },
+      error: (err) => {
+        console.error('Error updating status', err);
+        alert('Có lỗi xảy ra khi cập nhật trạng thái đơn hàng.');
+      }
+    });
+  }
+
+  forwardOrderToMap(order: Order): void {
+    this.forwardToMap.emit(order);
   }
 
   submitOrder(): void {
     if (this.orderForm.valid) {
-      if (!this.orderForm.get('latitude')?.value) {
+      const hasCoords = !!this.orderForm.get('latitude')?.value;
+      const isEditing = !!this.editingOrderId;
+
+      // Skip lat/lng check when editing an order that already has coordinates
+      if (!hasCoords && !isEditing) {
         alert('Vui lòng chọn một địa chỉ cụ thể từ danh sách gợi ý để có toạ độ chính xác.');
         return;
       }
 
       this.loading = true;
       const payload = this.orderForm.value;
-      
+
       if (this.editingOrderId) {
-        // Update
-        const updatePayload = {
-          ...payload,
-          id: this.editingOrderId
-        };
+        const updatePayload = { ...payload, id: this.editingOrderId };
+
         this.orderService.updateOrder(this.editingOrderId, updatePayload).subscribe({
           next: () => {
-            alert('Cập nhật đơn hàng thành công!');
             this.toggleAddForm();
             this.loadOrders();
             this.loadStats();

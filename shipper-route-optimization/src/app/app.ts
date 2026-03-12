@@ -61,7 +61,7 @@ import { Order } from './services/order.service';
 
         <!-- ORDERS TAB CONTENT -->
         <div *ngIf="activeTab === 'orders'" class="absolute inset-0 w-full h-full bg-gray-100 p-6 overflow-hidden animate-fadeIn z-20">
-           <app-orders (routePendingOrders)="onRoutePendingOrders($event)"></app-orders>
+           <app-orders (routePendingOrders)="onRoutePendingOrders($event)" (forwardToMap)="onForwardToMap($event)"></app-orders>
         </div>
       </div>
     </div>
@@ -130,6 +130,18 @@ export class App {
     
     // Switch to map tab
     this.activeTab = 'map';
+  }
+
+  onForwardToMap(order: Order) {
+    // Switch to Map tab and highlight the order's location
+    this.activeTab = 'map';
+    this.selectedPoint = {
+      id: order.id,
+      name: `${order.orderCode} - ${order.customerName}`,
+      address: order.address,
+      lat: order.latitude,
+      lng: order.longitude
+    };
   }
 }
 

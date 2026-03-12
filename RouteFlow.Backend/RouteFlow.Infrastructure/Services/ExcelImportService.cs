@@ -20,25 +20,27 @@ namespace RouteFlow.Infrastructure.Services
 
             var rowCount = worksheet.Dimension.Rows;
 
-            // Start from row 2 assuming row 1 is header
+            // Column mapping (matches current Excel template):
+            // Col 1: CustomerName | Col 2: Address | Col 3: Latitude | Col 4: Longitude | Col 5: Note
             for (int row = 2; row <= rowCount; row++)
             {
-                var orderCode = worksheet.Cells[row, 1].Text;
-                var customerName = worksheet.Cells[row, 2].Text;
-                var address = worksheet.Cells[row, 3].Text;
-                var latStr = worksheet.Cells[row, 4].Text;
-                var lngStr = worksheet.Cells[row, 5].Text;
-                var note = worksheet.Cells[row, 6].Text;
+                var customerName = worksheet.Cells[row, 1].Text;
+                var address      = worksheet.Cells[row, 2].Text;
+                var latStr       = worksheet.Cells[row, 3].Text;
+                var lngStr       = worksheet.Cells[row, 4].Text;
+                var note         = worksheet.Cells[row, 5].Text;
 
                 if (string.IsNullOrWhiteSpace(customerName) || string.IsNullOrWhiteSpace(address)) continue;
 
                 double latitude = 0;
                 double longitude = 0;
 
-                double.TryParse(latStr, out latitude);
-                double.TryParse(lngStr, out longitude);
+                double.TryParse(latStr, System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture, out latitude);
+                double.TryParse(lngStr, System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture, out longitude);
 
-                var order = Order.Create(customerName, address, latitude, longitude, note);
+                var order = Order.Create(customerName, string.Empty, string.Empty, address, latitude, longitude, note);
                 parsedOrders.Add(order);
             }
 

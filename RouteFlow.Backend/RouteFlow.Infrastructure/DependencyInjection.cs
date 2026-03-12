@@ -29,6 +29,9 @@ namespace RouteFlow.Infrastructure
             // Register Geocoding Service with HttpClient
             services.AddHttpClient<IGeocodingService, NominatimGeocodingService>();
 
+            // Register Email Notification Service
+            services.AddTransient<IEmailService, SmtpEmailService>();
+
             return services;
         }
     }

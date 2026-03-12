@@ -82,5 +82,17 @@ namespace RouteFlow.Api.Controllers
             if (!result) return NotFound();
             return NoContent();
         }
+
+        [HttpPatch("{id:guid}/status")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromBody] UpdateOrderStatusCommand command)
+        {
+            if (id != command.Id) return BadRequest("Id mismatch.");
+            var result = await _mediator.Send(command);
+            if (!result) return NotFound();
+            return NoContent();
+        }
     }
 }

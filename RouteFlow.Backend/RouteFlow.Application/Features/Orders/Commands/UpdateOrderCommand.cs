@@ -10,6 +10,8 @@ namespace RouteFlow.Application.Features.Orders.Commands
     public record UpdateOrderCommand(
         Guid Id,
         string CustomerName,
+        string Phone,
+        string Email,
         string Address,
         double Latitude,
         double Longitude,
@@ -45,8 +47,7 @@ namespace RouteFlow.Application.Features.Orders.Commands
             if (order == null) return false;
 
             // Notice we do NOT update OrderCode
-            // To update these we need to add a method on Order entity, or we can just bypass encaps for now, but best practice is:
-            order.UpdateDetails(request.CustomerName, request.Address, request.Latitude, request.Longitude, request.Note);
+            order.UpdateDetails(request.CustomerName, request.Phone, request.Email, request.Address, request.Latitude, request.Longitude, request.Note);
 
             _repository.Update(order);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

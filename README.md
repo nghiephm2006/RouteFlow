@@ -95,10 +95,14 @@ _API Server và bảng đặc tả Swagger chạy mặc định tại: `http://l
 - Giao việc tự động: Chia nhóm đơn hàng (Clustering) các điểm giao gần nhau cho các tài xế (Shipper) khác nhau để tối đa hoá hiệu suất sử dụng Thuật toán K-Means.
 - Realtime Tracking: Thêm WebSockets (SignalR) bắn toạ độ GPS Shipper trên đường giao.
 - Dashboard Report (Chart.js): Thêm biểu đồ tổng kết số đơn hoàn thành theo ngày ngay trên Frontend.
-- **[TODO]** Tính năng Cập nhật trạng thái đơn hàng (Đang giao, Giao thành công, Khách hẹn lại,...).
-- **[TODO]** Chức năng (nút bấm) Forward chuyển tiếp góc nhìn sang Tab Bản đồ để xem nhanh vị trí của từng đơn hàng.
-- **[TODO]** Quản lý chi tiết Đơn hàng: Bổ sung Phone + Email khách hàng, tự động bắn Noti (thông báo/email) khi tài xế hoặc Admin chuyển trạng thái đơn.
-- **[TODO]** Mở rộng hệ thống Tự động gom nhóm (Auto-cluster) Đơn hàng theo lô/khu vực → Tạo ra nhiều Routes (tuyến đường) độc lập → Phân bổ cho nhiều Shipper để tăng tốc độ giao hàng.
+- **[DONE]** Tính năng Cập nhật trạng thái đơn hàng — Click badge trên bảng để đổi trạng thái, có popup xác nhận.
+- **[DONE]** Chức năng Forward chuyển tiếp góc nhìn sang Tab Bản đồ để xem nhanh vị trí từng đơn.
+- **[DONE]** Quản lý chi tiết Đơn hàng: Bổ sung Phone + Email — Cập nhật trong form Sửa, gửi email tự động khi đổi trạng thái.
+- **[DONE]** Email notification gửi thành công qua Gmail SMTP khi cập nhật trạng thái đơn.
+- **[DONE]** Fix lỗi layout badge trạng thái: click lần đầu bị clear ô, phải click lần 2 mới hiện dropdown.
+- **[DONE]** Trường Phone chưa được lưu/hiển thị đúng trên UI — Đã bổ sung cột SĐT vào bảng danh sách đơn hàng.
+- **[TODO]** Tích hợp SMS (Zalo OA / Twilio / ESMS) — gửi tin nhắn tự động cho khách hàng khi trạng thái đơn thay đổi.
+- **[TODO]** Mở rộng hệ thống Tự động gom nhóm (Auto-cluster) Đơn hàng theo lô/khu vực → Phân bổ cho nhiều Shipper.
 - **[TODO]** Triển khai (Deployment): Đóng gói Docker, cấu hình Azure SQL Database và deploy Frontend lên Vercel/Netlify.
 - **[TODO - Optional]** Chuyển đổi sang Google Maps Platform: Nâng cấp trải nghiệm bản đồ và dữ liệu địa chỉ chi tiết hơn tại VN.
 
@@ -106,7 +110,7 @@ _API Server và bảng đặc tả Swagger chạy mặc định tại: `http://l
 
 ## 🤖 Chuyển giao Ngữ cảnh AI (AI Context Handover)
 
-Dự án này được hỗ trợ phát triển bởi AI Assistant. Trong bộ Source Code có đính kèm file **`AI_CONTEXT.md`** chứa toàn bộ lược sử cấu trúc Hệ thống và các tiến độ công việc đang làm dở lõi.
+Dự án này được hỗ trợ phát triển bởi AI Assistant. Trong bộ Source Code có đính kèm file **`AI_CONTEXT.md`** chứa toàn bộ lược sử cấu trúc Hệ thống và các tiến độ công việc đang làm dở.
 
 Nếu bạn clone source code này sang một máy tính/IDE khác và muốn AI tiếp tục hiểu dự án ngay lập tức, hãy Copy & Paste câu lệnh sau vào khung Chat của AI:
 

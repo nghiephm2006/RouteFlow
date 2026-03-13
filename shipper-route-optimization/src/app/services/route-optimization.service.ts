@@ -8,7 +8,35 @@ import { Point, OptimizedRoute } from '../models/route.model';
   providedIn: 'root'
 })
 export class RouteOptimizationService {
+  private trafficMultiplier = 1.7;
+  private isTrafficRandom = false;
+  private serviceTimePerStop = 420; // 7 minutes in seconds
+
   constructor(private http: HttpClient) {}
+
+  setIsTrafficRandom(value: boolean) {
+    this.isTrafficRandom = value;
+  }
+
+  getIsTrafficRandom(): boolean {
+    return this.isTrafficRandom;
+  }
+
+  setTrafficMultiplier(value: number) {
+    this.trafficMultiplier = value;
+  }
+
+  getTrafficMultiplier(): number {
+    return this.trafficMultiplier;
+  }
+
+  setServiceTimePerStop(minutes: number) {
+    this.serviceTimePerStop = minutes * 60;
+  }
+
+  getServiceTimePerStop(): number {
+    return this.serviceTimePerStop / 60;
+  }
 
   /**
    * 1. Geocodes all addresses using OpenStreetMap Nominatim.
@@ -47,17 +75,31 @@ export class RouteOptimizationService {
               optimizedPoints[wp.waypoint_index] = geocodedPoints[index];
             });
 
+            // Use fixed multiplier or pick a new random one if enabled
+            const activeMultiplier = this.isTrafficRandom 
+              ? Math.round((Math.random() * (2.0 - 1.5) + 1.5) * 10) / 10 
+              : this.trafficMultiplier;
+            
+            // Store it back if random, so UI can reflect what was used
+            if (this.isTrafficRandom) this.trafficMultiplier = activeMultiplier;
+
             // Map legs for segment distances
-            const legs = trip.legs.map((leg: any) => ({
-              distance: leg.distance / 1000, // Convert to km
-              duration: leg.duration,
-              geometry: null // Logic to split geometry will be handled in MapComponent or here
-            }));
+            const legs = trip.legs.map((leg: any) => {
+              const adjustedDuration = (leg.duration * activeMultiplier) + this.serviceTimePerStop;
+              return {
+                distance: leg.distance / 1000, // Convert to km
+                duration: adjustedDuration,
+                geometry: null 
+              };
+            });
+
+            // Total duration is the sum of adjusted legs
+            const totalDuration = legs.reduce((acc: number, leg: any) => acc + leg.duration, 0);
 
             return {
               optimizedPoints,
               totalDistance: trip.distance / 1000, // Convert meters to km
-              totalDuration: trip.duration, // in seconds
+              totalDuration: totalDuration, // in seconds (adjusted)
               routeGeoJson: trip.geometry, // The GeoJSON LineString
               legs: legs
             };

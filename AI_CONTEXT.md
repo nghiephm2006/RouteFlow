@@ -48,10 +48,20 @@ Dự án RouteFlow giải quyết bài toán Quản lý & Tối ưu tuyến đư
 
 ## 🎯 Định hướng Roadmap (Việc cần làm tiếp theo)
 
-1. **Auto-Cluster System**: Gom nhóm Đơn hàng theo lô/khu vực (K-Means) để chia cho nhiều Shipper.
-2. **Tích hợp SMS**: Gửi tin nhắn tự động (Zalo/Twilio) song song với Email.
-3. **Realtime Tracking**: Thêm WebSockets (SignalR) bắn toạ độ GPS Shipper.
-4. **Triển khai (Deployment)**: Đóng gói Docker, cấu hình Azure SQL Database thực tế.
+### 📱 Trải nghiệm Shipper (Sau khi Deploy)
+- [ ] **PWA (Progressive Web App)**: Cài đặt ứng dụng như app mobile không cần Store.
+- [ ] **Proof of Delivery**: Chụp ảnh đơn hàng & ký nhận điện tử khi hoàn tất giao.
+- [ ] **Navigation Deep Link**: Nút mở nhanh Google Maps/Waze để chỉ đường.
+
+### 🎨 Giao diện & Trải nghiệm (UI/UX)
+- [x] **Dark Mode**: Chế độ tối hiện đại cho toàn bộ hệ thống.
+- [ ] **Dashboard Analytics**: Thống kê tỷ lệ giao hàng, quãng đường bằng biểu đồ (Chart.js).
+
+### ⚙️ Thuật toán & Nâng cao
+- [ ] **Auto-Cluster System**: Gom nhóm Đơn hàng theo lô/khu vực (K-Means).
+- [ ] **Multi-Vehicle Routing (VRP)**: Tối ưu cho nhiều xe/shipper cùng lúc.
+- [ ] **Realtime Tracking**: Theo dõi tọa độ GPS Shipper qua SignalR.
+- [ ] **Tích hợp SMS**: Gửi tin nhắn tự động (Zalo/Twilio).
 
 ---
 

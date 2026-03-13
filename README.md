@@ -100,13 +100,19 @@ _API Server và bảng đặc tả Swagger chạy mặc định tại: `http://l
 4. **[DONE]** Email notification gửi thành công qua Gmail SMTP khi cập nhật trạng thái đơn.
 5. **[DONE]** Fix lỗi layout badge trạng thái: Đã fix dứt điểm hiện tượng "clear ô", hiển thị native Dropdown một cách mượt mà ngay trong lần click đầu tiên bằng cơ chế Select Overlay.
 6. **[DONE]** Trường Phone chưa được lưu/hiển thị đúng trên UI — Đã bổ sung cột SĐT vào bảng danh sách đơn hàng.
-7. **[TODO]** Tích hợp SMS (Zalo OA / Twilio / ESMS) — gửi tin nhắn tự động cho khách hàng khi trạng thái đơn thay đổi.
-8. **[DONE]** Hệ thống Marker cải tiến: Phóng to điểm bắt đầu, đánh số thứ tự 1,2,3... cho toàn bộ lộ trình.
-9. **[DONE]** Tương tác Lộ trình: Click xem quãng đường từng chặng & Cập nhật trạng thái "Giao thành công" ngay trên Bản đồ (Tự động tính lại tuyến đường).
-10. **[DONE]** Duy trì trạng thái ứng dụng: Khắc phục triệt để việc reset bản đồ khi chuyển tab.
-11. **[TODO]** Mở rộng hệ thống Tự động gom nhóm (Auto-cluster) Đơn hàng theo lô/khu vực → Phân bổ cho nhiều Shipper.
-12. **[TODO]** Dashboard Report (Chart.js): Thêm biểu đồ tổng kết số đơn hoàn thành theo ngày ngay trên Frontend.
-13. **[TODO]** Triển khai (Deployment): Đóng gói Docker, cấu hình Azure SQL Database và deploy Frontend lên Vercel/Netlify.
+7. **[DONE]** Hệ thống Marker cải tiến: Phóng to điểm bắt đầu, đánh số thứ tự 1,2,3... cho toàn bộ lộ trình.
+8. **[DONE]** Tương tác Lộ trình: Click xem quãng đường từng chặng & Cập nhật trạng thái "Giao thành công" ngay trên Bản đồ.
+9. **[DONE]** Duy trì trạng thái ứng dụng: Khắc phục triệt để việc reset bản đồ khi chuyển tab.
+10. **[DONE]** Tính năng **Xoá nhiều đơn hàng (Batch Delete)** cùng lúc với xác nhận popup.
+11. **[DONE]** Nâng cấp **Excel Template** với các địa chỉ mẫu HCMC cách nhau ~10km để test route thực tế.
+12. **[DONE]** **Dark Mode** — Chế độ tối hiện đại cho toàn bộ hệ thống (Frontend).
+13. **[TODO]** Tích hợp SMS (Zalo OA / Twilio / ESMS) — gửi tin nhắn tự động khi đổi trạng thái.
+14. **[TODO]** Mở rộng hệ thống Tự động gom nhóm (Auto-cluster) Đơn hàng theo lô/khu vực.
+15. **[TODO]** Dashboard Report (Chart.js): Biểu đồ tổng kết số đơn hoàn thành theo ngày.
+16. **[TODO]** Triển khai (Deployment): Đóng gói Docker và đưa hệ thống lên Cloud.
+17. **[TODO]** PWA (Progressive Web App) — Cài đặt app mobile (Sau khi Deploy).
+18. **[TODO]** Proof of Delivery — Chụp ảnh & Ký nhận điện tử (Sau khi Deploy).
+19. **[TODO]** Navigation Deep Link — Nút mở Google Maps/Waze chỉ đường (Sau khi Deploy).
 
 ---
 

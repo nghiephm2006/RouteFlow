@@ -8,18 +8,18 @@ import { OptimizedRoute, Point } from '../../models/route.model';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="relative w-full h-full rounded-l-2xl overflow-hidden shadow-inner bg-gray-100">
+    <div class="relative w-full h-full rounded-l-2xl overflow-hidden shadow-inner bg-gray-100 transition-colors duration-300">
       <div id="map" class="w-full h-full z-0"></div>
       
       <!-- Status Overlay -->
-      <div *ngIf="currentRoute" class="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] bg-white px-4 py-2 rounded-full shadow-md border border-gray-100 flex items-center gap-2">
+      <div *ngIf="currentRoute" class="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] bg-white px-4 py-2 rounded-full shadow-md border border-gray-100 flex items-center gap-2 transition-colors">
         <span class="text-sm font-semibold text-gray-700">Trạng Thái Lộ Trình:</span>
         <span class="text-sm font-bold text-teal-600">Đã Tối Ưu</span>
       </div>
     
       <!-- Distance Overlay -->
       <div *ngIf="currentRoute && currentRoute.optimizedPoints.length > 0" 
-           class="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border border-gray-200 flex items-center gap-3 animate-fade-in-down">
+           class="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border border-gray-200 flex items-center gap-3 animate-fade-in-down transition-colors">
         <div class="bg-indigo-100 p-2 rounded-full text-indigo-600">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -50,6 +50,9 @@ export class MapComponent implements OnInit, OnDestroy {
 
   @Output() userLocationReady = new EventEmitter<{lat: number, lng: number}>();
   @Output() statusUpdate = new EventEmitter<string>();
+
+  constructor() {
+  }
 
   @Input() set optimizedRoute(route: OptimizedRoute | null) {
     this.currentRoute = route;

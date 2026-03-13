@@ -34,8 +34,10 @@ namespace RouteFlow.Infrastructure.Services
                 if (results.ValueKind == JsonValueKind.Array && results.GetArrayLength() > 0)
                 {
                     var firstResult = results[0];
-                    if (double.TryParse(firstResult.GetProperty("lat").GetString(), out var lat) &&
-                        double.TryParse(firstResult.GetProperty("lon").GetString(), out var lng))
+                    if (firstResult.TryGetProperty("lat", out var latProp) && 
+                        firstResult.TryGetProperty("lon", out var lonProp) &&
+                        double.TryParse(latProp.GetString(), out var lat) &&
+                        double.TryParse(lonProp.GetString(), out var lng))
                     {
                         return (lat, lng);
                     }

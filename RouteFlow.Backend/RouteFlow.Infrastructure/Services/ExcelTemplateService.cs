@@ -29,14 +29,14 @@ namespace RouteFlow.Infrastructure.Services
                 range.AutoFitColumns();
             }
 
-            // 5 sample rows - real HCMC addresses with accurate coordinates
+            // 5 sample rows - Distributed across HCMC ~10km apart for routing testing
             var samples = new[]
             {
-                new { Name = "Nguyễn Văn An",   Address = "Landmark 81, 720A Điện Biên Phủ, Bình Thạnh, TP.HCM",          Lat = 10.7951,  Lng = 106.7220, Note = "Giao tại quầy lễ tân tầng 1" },
-                new { Name = "Trần Thị Bình",   Address = "Bến Thành Market, 1 Lê Lợi, Quận 1, TP.HCM",                   Lat = 10.7727,  Lng = 106.6980, Note = "Gọi điện trước khi giao" },
-                new { Name = "Lê Minh Cường",   Address = "Vincom Center Đồng Khởi, 72 Lê Thánh Tôn, Quận 1, TP.HCM",    Lat = 10.7769,  Lng = 106.7031, Note = "Giao giờ hành chính" },
-                new { Name = "Phạm Thu Hà",     Address = "Crescent Mall, 101 Tôn Dật Tiên, Phú Mỹ Hưng, Quận 7, TP.HCM",Lat = 10.7290,  Lng = 106.7218, Note = "Để tại bảo vệ" },
-                new { Name = "Hoàng Quốc Tuấn", Address = "Aeon Mall Tân Phú, 30 Bờ Bao Tân Thắng, Tân Phú, TP.HCM",     Lat = 10.7960,  Lng = 106.6223, Note = "Tầng B1 cổng chính" },
+                new { Name = "Cửa hàng Quận 1",    Address = "Chợ Bến Thành, Quận 1, TP.HCM",                   Lat = 10.7719, Lng = 106.6983, Note = "Điểm xuất phát trung tâm" },
+                new { Name = "Kho Thủ Đức",       Address = "Chùa Huê Nghiêm, Lương Định Của, TP. Thủ Đức",    Lat = 10.8245, Lng = 106.7644, Note = "Khu vực phía Đông (~10km)" },
+                new { Name = "Trạm Quận 12",      Address = "UBND Quận 12, Lê Thị Riêng, Quận 12, TP.HCM",     Lat = 10.8672, Lng = 106.6639, Note = "Khu vực phía Bắc (~11km)" },
+                new { Name = "Chi nhánh Bình Tân", Address = "AEON Mall Bình Tân, Quận Bình Tân, TP.HCM",       Lat = 10.7437, Lng = 106.6121, Note = "Khu vực phía Tây (~10km)" },
+                new { Name = "Bưu cục Nhà Bè",    Address = "Cầu Phước Lộc, Đào Sư Tích, Nhà Bè, TP.HCM",      Lat = 10.6961, Lng = 106.7029, Note = "Khu vực phía Nam (~9km)" },
             };
 
             for (int i = 0; i < samples.Length; i++)

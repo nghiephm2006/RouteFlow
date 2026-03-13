@@ -27,6 +27,7 @@ export class OrdersComponent implements OnInit {
   showDropdown: boolean = false;
   
   isRefreshing: boolean = false;
+  selectedOrderIds: Set<string> = new Set<string>();
 
   @Output() routePendingOrders = new EventEmitter<Order[]>();
   @Output() forwardToMap = new EventEmitter<Order>();
@@ -260,6 +261,48 @@ export class OrdersComponent implements OnInit {
       this.orderService.deleteOrder(id).subscribe(() => {
         this.loadOrders();
         this.loadStats();
+      });
+    }
+  }
+
+  toggleSelection(id: string): void {
+    if (this.selectedOrderIds.has(id)) {
+      this.selectedOrderIds.delete(id);
+    } else {
+      this.selectedOrderIds.add(id);
+    }
+  }
+
+  toggleAll(event: any): void {
+    const isChecked = event.target.checked;
+    if (isChecked) {
+      this.orders.forEach(o => this.selectedOrderIds.add(o.id));
+    } else {
+      this.selectedOrderIds.clear();
+    }
+  }
+
+  isAllSelected(): boolean {
+    return this.orders.length > 0 && this.selectedOrderIds.size === this.orders.length;
+  }
+
+  deleteSelectedOrders(): void {
+    if (this.selectedOrderIds.size === 0) return;
+    if (confirm(`Bạn có chắc muốn xoá ${this.selectedOrderIds.size} đơn hàng đã chọn?`)) {
+      this.loading = true;
+      const idsToDelete = Array.from(this.selectedOrderIds);
+      this.orderService.deleteOrders(idsToDelete).subscribe({
+        next: () => {
+          this.selectedOrderIds.clear();
+          this.loadOrders();
+          this.loadStats();
+        },
+        error: (err) => {
+          console.error('Error deleting multiple orders', err);
+          alert('Có lỗi xảy ra khi xoá các đơn hàng đã chọn.');
+          this.loading = false;
+          this.cdr.detectChanges();
+        }
       });
     }
   }

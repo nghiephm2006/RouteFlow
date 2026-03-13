@@ -28,6 +28,11 @@ namespace RouteFlow.Infrastructure.Persistence.Repositories
             return await _context.Orders.FirstOrDefaultAsync(o => o.OrderCode == orderCode);
         }
 
+        public async Task<IEnumerable<Order>> GetByIdsAsync(IEnumerable<Guid> ids)
+        {
+            return await _context.Orders.Where(o => ids.Contains(o.Id)).ToListAsync();
+        }
+
         public async Task<IEnumerable<Order>> GetAllAsync()
         {
             return await _context.Orders.OrderByDescending(o => o.CreatedAt).ToListAsync();
@@ -59,6 +64,11 @@ namespace RouteFlow.Infrastructure.Persistence.Repositories
         public void Delete(Order order)
         {
             _context.Orders.Remove(order);
+        }
+
+        public void DeleteRange(IEnumerable<Order> orders)
+        {
+            _context.Orders.RemoveRange(orders);
         }
 
         public async Task<int> GetTotalOrdersCountAsync()

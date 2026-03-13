@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -80,6 +81,17 @@ namespace RouteFlow.Api.Controllers
         {
             var result = await _mediator.Send(new DeleteOrderCommand(id));
             if (!result) return NotFound();
+            return NoContent();
+        }
+
+        [HttpDelete("batch")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteOrders([FromBody] List<Guid> ids)
+        {
+            if (ids == null || ids.Count == 0) return BadRequest("No order IDs provided.");
+            var result = await _mediator.Send(new DeleteOrdersCommand(ids));
+            if (!result) return BadRequest("Could not delete orders. They might have been already deleted.");
             return NoContent();
         }
 

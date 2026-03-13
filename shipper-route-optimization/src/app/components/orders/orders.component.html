@@ -25,6 +25,13 @@
   <!-- Actions Toolbar -->
   <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border mb-4">
     <div class="flex gap-3 items-center">
+      <button *ngIf="selectedOrderIds.size > 0" (click)="deleteSelectedOrders()" class="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+        <span class="hidden sm:inline">Xóa đã chọn ({{ selectedOrderIds.size }})</span>
+      </button>
+
       <button (click)="refreshOrders()" [disabled]="isRefreshing" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-wait">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" [ngClass]="{'animate-spin text-[#F97316]': isRefreshing}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -141,6 +148,9 @@
     <table class="w-full text-left text-sm">
       <thead class="bg-[#1A365D] text-white sticky top-0 z-0">
         <tr>
+          <th class="px-4 py-3 font-medium w-10 text-center">
+            <input type="checkbox" [checked]="isAllSelected()" (change)="toggleAll($event)" class="rounded text-[#F97316] focus:ring-[#F97316] cursor-pointer accent-[#F97316]">
+          </th>
           <th class="px-4 py-3 font-medium whitespace-nowrap">Mã Đơn</th>
           <th class="px-4 py-3 font-medium">Khách Hàng</th>
           <th class="px-4 py-3 font-medium whitespace-nowrap">SĐT</th>
@@ -152,13 +162,16 @@
       </thead>
       <tbody class="divide-y text-gray-700">
         <tr *ngIf="orders.length === 0 && !loading" class="bg-gray-50">
-          <td colspan="6" class="px-4 py-12 text-center text-gray-500 italic">
+          <td colspan="7" class="px-4 py-12 text-center text-gray-500 italic">
             Chưa có đơn hàng nào trong ca làm việc.<br/>
             Vui lòng <strong class="text-[#1A365D]">Import từ Excel</strong> để bắt đầu lên tuyến.
           </td>
         </tr>
 
         <tr *ngFor="let order of orders" class="hover:bg-gray-50 transition-colors">
+          <td class="px-4 py-3 text-center">
+            <input type="checkbox" [checked]="selectedOrderIds.has(order.id)" (change)="toggleSelection(order.id)" class="rounded text-[#F97316] focus:ring-[#F97316] cursor-pointer accent-[#F97316]">
+          </td>
           <td class="px-4 py-3 font-medium text-[#1A365D] whitespace-nowrap">{{ order.orderCode }}</td>
           <td class="px-4 py-3 rounded break-words min-w-[120px]">{{ order.customerName }}</td>
           <td class="px-4 py-3 whitespace-nowrap text-gray-500">{{ order.phone || '-' }}</td>

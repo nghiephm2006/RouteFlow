@@ -71,6 +71,10 @@ export class OrderService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
+  deleteOrders(ids: string[]): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/batch`, { body: ids });
+  }
+
   importExcel(file: File): Observable<{ message: string }> {
     const formData = new FormData();
     formData.append('file', file);

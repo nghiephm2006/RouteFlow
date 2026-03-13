@@ -5,7 +5,7 @@ import { MapComponent } from './components/map/map.component';
 import { OrdersComponent } from './components/orders/orders.component';
 import { RouteOptimizationService } from './services/route-optimization.service';
 import { Point, OptimizedRoute } from './models/route.model';
-import { Order } from './services/order.service';
+import { Order, OrderService, OrderStatus } from './services/order.service';
 
 @Component({
   selector: 'app-root',
@@ -50,17 +50,17 @@ import { Order } from './services/order.service';
       <!-- Main Content Container -->
       <div class="flex-1 relative overflow-hidden flex w-full h-full">
         <!-- MAP TAB CONTENT -->
-        <div *ngIf="activeTab === 'map'" class="absolute inset-0 flex flex-col md:flex-row w-full h-full animate-fadeIn z-10">
+        <div [class.hidden]="activeTab !== 'map'" class="absolute inset-0 flex flex-col md:flex-row w-full h-full animate-fadeIn z-10">
           <div class="w-full md:w-[420px] h-full flex-shrink-0 shadow-2xl z-20 overflow-y-auto">
-            <app-sidebar [routeData]="routeData" [routePoints]="pointsFromOrders" #sidebar (calculate)="onCalculateRoute($event)" (pointSelected)="onPointSelected($event)"></app-sidebar>
+            <app-sidebar [userLocation]="currentUserLocation" [routeData]="routeData" [routePoints]="pointsFromOrders" #sidebar (calculate)="onCalculateRoute($event)" (pointSelected)="onPointSelected($event)"></app-sidebar>
           </div>
           <div class="flex-1 h-full z-10">
-            <app-map [optimizedRoute]="routeData" [highlightPoint]="selectedPoint"></app-map>
+            <app-map [isVisible]="activeTab === 'map'" [optimizedRoute]="routeData" [highlightPoint]="selectedPoint" (userLocationReady)="onUserLocationReady($event)" (statusUpdate)="onStatusUpdateFromMap($event)"></app-map>
           </div>
         </div>
 
         <!-- ORDERS TAB CONTENT -->
-        <div *ngIf="activeTab === 'orders'" class="absolute inset-0 w-full h-full bg-gray-100 p-6 overflow-hidden animate-fadeIn z-20">
+        <div [class.hidden]="activeTab !== 'orders'" class="absolute inset-0 w-full h-full bg-gray-100 p-6 overflow-hidden animate-fadeIn z-20">
            <app-orders (routePendingOrders)="onRoutePendingOrders($event)" (forwardToMap)="onForwardToMap($event)"></app-orders>
         </div>
       </div>
@@ -83,13 +83,35 @@ export class App {
   routeData: OptimizedRoute | null = null;
   selectedPoint: Point | null = null;
   pointsFromOrders: Point[] = [];
+  currentUserLocation: { lat: number, lng: number } | null = null;
 
   @ViewChild('sidebar') sidebar!: SidebarComponent;
   
   constructor(
     private routeService: RouteOptimizationService,
+    private orderService: OrderService,
     private cdr: ChangeDetectorRef
   ) {}
+
+  onUserLocationReady(location: { lat: number, lng: number }) {
+    this.currentUserLocation = location;
+  }
+
+  onStatusUpdateFromMap(orderId: string) {
+    this.orderService.updateOrderStatus(orderId, OrderStatus.Delivered).subscribe({
+      next: () => {
+        // Remove the delivered order from the active route
+        this.pointsFromOrders = this.pointsFromOrders.filter(p => p.id !== orderId);
+        
+        // Re-calculate route with remaining points
+        this.onCalculateRoute(this.pointsFromOrders);
+      },
+      error: (err: any) => {
+        console.error('Failed to update status:', err);
+        alert('Có lỗi xảy ra khi cập nhật trạng thái đơn hàng.');
+      }
+    });
+  }
 
   onCalculateRoute(points: Point[]) {
     // Need to wait out ViewChild if we just switched tab
@@ -103,7 +125,7 @@ export class App {
           if (this.sidebar) this.sidebar.setLoading(false);
           this.cdr.detectChanges();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error("Optimization failed", err);
           if (this.sidebar) this.sidebar.setLoading(false);
           this.cdr.detectChanges();
@@ -118,15 +140,33 @@ export class App {
 
   onRoutePendingOrders(orders: Order[]) {
     // Chuyển Orders thành Points để nạp vào Sidebar
-    this.pointsFromOrders = orders.map((o, index) => ({
+    const orderPoints = orders.map((o, index) => ({
       id: o.id,
       name: `Đơn: ${o.orderCode} - ${o.customerName}`,
       address: o.address,
       lat: o.latitude,
       lng: o.longitude,
-      isOrigin: false, // Will be set in Sidebar
+      isOrigin: false,
       isDestination: false
     }));
+
+    // Prepend user location as point 1 if available
+    if (this.currentUserLocation) {
+      this.pointsFromOrders = [
+        {
+          id: 'START_USER_LOC',
+          name: 'Vị trí của bạn (Bắt đầu)',
+          address: 'Vị trí hiện tại',
+          lat: this.currentUserLocation.lat,
+          lng: this.currentUserLocation.lng,
+          isOrigin: true,
+          isDestination: false
+        },
+        ...orderPoints
+      ];
+    } else {
+      this.pointsFromOrders = orderPoints;
+    }
     
     // Switch to map tab
     this.activeTab = 'map';

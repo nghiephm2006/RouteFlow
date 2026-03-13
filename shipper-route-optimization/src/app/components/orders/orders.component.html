@@ -174,28 +174,23 @@
             </div>
           </td>
           <td class="px-4 py-3 text-center whitespace-nowrap">
-            <!-- Click badge to toggle inline status editor -->
-            <div class="inline-flex flex-col items-center gap-1">
-              <span
-                *ngIf="!showStatusEdit[order.id]"
-                (click)="toggleStatusEdit(order.id)"
-                class="px-2.5 py-1 text-xs font-semibold rounded-full cursor-pointer hover:opacity-80 transition"
-                [ngClass]="getStatusBadgeClass(order.status)"
-                title="Click để thay đổi trạng thái">
-                {{ getStatusName(order.status) }} ✏️
-              </span>
+            <!-- Inline overlay status editor -->
+            <div class="relative inline-flex items-center justify-center">
               <select
-                *ngIf="showStatusEdit[order.id]"
-                [id]="'status-select-' + order.id"
+                (change)="onStatusChange($event, order)"
+                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 [value]="order.status"
-                (change)="updateOrderStatus(order, +$any($event.target).value)"
-                (blur)="onStatusBlur(order.id)"
-                class="text-xs border border-gray-300 rounded-md px-2 py-1 bg-white focus:ring-1 focus:ring-[#F97316] focus:border-[#F97316] min-w-[130px]">
+                title="Thay đổi trạng thái">
                 <option [value]="0">Chờ xử lý</option>
                 <option [value]="1">Đang xếp tuyến</option>
                 <option [value]="2">Đã giao tài xế</option>
-                <option [value]="3">Đã giao hàng</option>
+                <option [value]="3">Giao hàng thành công</option>
               </select>
+              <span
+                class="px-2.5 py-1 text-xs font-semibold rounded-full hover:opacity-80 transition inline-flex items-center gap-1"
+                [ngClass]="getStatusBadgeClass(order.status)">
+                {{ getStatusName(order.status) }} ✏️
+              </span>
             </div>
           </td>
           <td class="px-4 py-3">

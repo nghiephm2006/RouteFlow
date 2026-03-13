@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { OptimizedRoute, Point } from '../../models/route.model';
@@ -43,11 +43,13 @@ import { OptimizedRoute, Point } from '../../models/route.model';
 export class MapComponent implements OnInit, OnDestroy {
   private map!: L.Map;
   private markersLayer: L.LayerGroup = L.layerGroup();
-  private routeLayer: L.GeoJSON | L.Polyline | null = null;
+  private routeLayer: L.Layer | null = null;
   private userLocationMarker: L.Marker | null = null;
+  private currentHighlightPoint: Point | null = null;
   currentRoute: OptimizedRoute | null = null;
 
-  // No longer using an array of colors since we use SVG icons
+  @Output() userLocationReady = new EventEmitter<{lat: number, lng: number}>();
+  @Output() statusUpdate = new EventEmitter<string>();
 
   @Input() set optimizedRoute(route: OptimizedRoute | null) {
     this.currentRoute = route;
@@ -56,25 +58,41 @@ export class MapComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Called when user selects a dropdown suggestion
   @Input() set highlightPoint(point: Point | null) {
-    if (this.map && point && point.lat && point.lng) {
-      this.map.flyTo([point.lat, point.lng], 16, { animate: true, duration: 1 });
-      
-      // Optionally place a temporary marker or just trust the new pin
-      // We will place a "Preview" marker that doesn't mess with the route
-      this.markersLayer.clearLayers();
-      if (this.routeLayer) {
-        this.map.removeLayer(this.routeLayer);
-      }
+    this.currentHighlightPoint = point;
+    if (this.map && point) {
+      this.applyHighlight(point);
+    }
+  }
 
-      this.addInteractiveMarker(point, 0, true); // Blue preview
+  @Input() set isVisible(visible: boolean) {
+    if (visible && this.map) {
+      // Leaflet needs this when a hidden container becomes visible
+      setTimeout(() => {
+        this.map.invalidateSize();
+      }, 100);
     }
   }
 
   ngOnInit(): void {
     this.initMap();
+    if (this.currentHighlightPoint) {
+      this.applyHighlight(this.currentHighlightPoint);
+    }
     this.requestUserLocation();
+  }
+
+  private applyHighlight(point: Point): void {
+    if (!this.map || !point || !point.lat || !point.lng) return;
+    
+    this.map.flyTo([point.lat, point.lng], 16, { animate: true, duration: 1.5 });
+    
+    this.markersLayer.clearLayers();
+    if (this.routeLayer) {
+      this.map.removeLayer(this.routeLayer);
+    }
+
+    this.addInteractiveMarker(point, 0, true); // Blue preview
   }
 
   ngOnDestroy(): void {
@@ -86,9 +104,28 @@ export class MapComponent implements OnInit, OnDestroy {
   private initMap(): void {
     // Default center to Ho Chi Minh City (Lat: 10.762622, Lng: 106.660172)
     this.map = L.map('map', {
-      center: [10.762622, 106.660172],
+      center: [10.7626, 106.6601],
       zoom: 13,
       zoomControl: false
+    });
+
+    // Handle button clicks in popups
+    this.map.on('popupopen', (e: any) => {
+      const popup = e.popup;
+      const container = popup.getElement();
+      if (container) {
+        const btn = container.querySelector('.finish-order-btn');
+        if (btn) {
+          const orderId = btn.getAttribute('data-order-id');
+          L.DomEvent.on(btn, 'click', (ev) => {
+            L.DomEvent.stopPropagation(ev);
+            if (orderId && confirm('Bạn xác nhận đã giao thành công đơn hàng này?')) {
+              this.statusUpdate.emit(orderId);
+              this.map.closePopup();
+            }
+          });
+        }
+      }
     });
 
     L.control.zoom({ position: 'bottomright' }).addTo(this.map);
@@ -107,9 +144,12 @@ export class MapComponent implements OnInit, OnDestroy {
         (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
+          
+          this.userLocationReady.emit({ lat, lng });
+
           if (this.map) {
-            // Only fly to user location if there's no route currently displayed
-            if (!this.currentRoute) {
+            // Only fly to user location if there's no route OR highlighted point currently displayed
+            if (!this.currentRoute && !this.currentHighlightPoint) {
               this.map.setView([lat, lng], 14, { animate: true });
             }
             
@@ -155,24 +195,103 @@ export class MapComponent implements OnInit, OnDestroy {
     const points = route.optimizedPoints;
     if (!points || points.length === 0) return;
 
-    if (route.routeGeoJson && points.length > 1) {
-       // Draw the actual path from OSRM
-       this.routeLayer = L.geoJSON(route.routeGeoJson, {
-         style: {
-           color: '#F97316', // Orange
-           weight: 5,
-           opacity: 0.9
-         }
-       }).addTo(this.map);
+    // New logic: Draw each leg as a separate interactive segment
+    if (route.routeGeoJson && points.length > 1 && route.legs && route.legs.length > 0) {
+      const coords = route.routeGeoJson.coordinates;
+      const legCount = route.legs.length;
+      
+      this.routeLayer = L.featureGroup().addTo(this.map);
+      const layerGroup = this.routeLayer as L.FeatureGroup;
+
+      // Harmonious color palette
+      const colors = [
+        '#F97316', // Orange
+        '#3B82F6', // Blue
+        '#10B981', // Emerald
+        '#8B5CF6', // Violet
+        '#EC4899', // Pink
+        '#06B6D4', // Cyan
+        '#F59E0B', // Amber
+        '#6366F1'  // Indigo
+      ];
+
+      const chunk = Math.floor(coords.length / legCount);
+
+      for (let i = 0; i < legCount; i++) {
+        const startIdx = i * chunk;
+        const endIdx = (i === legCount - 1) ? coords.length : (i + 1) * chunk;
+        const legCoords = coords.slice(startIdx, endIdx);
+        const segmentColor = colors[i % colors.length];
+        
+        // Ensure the last coordinate of the previous leg is the start of the next
+        if (i > 0 && legCoords.length > 0) {
+          const prevLeg = (layerGroup.getLayers()[i-1] as L.Polyline);
+          const prevCoords = prevLeg.getLatLngs() as L.LatLng[];
+          const lastPoint = prevCoords[prevCoords.length - 1];
+          legCoords.unshift([lastPoint.lng, lastPoint.lat]);
+        }
+
+        const segment = L.polyline(legCoords.map((c: any) => [c[1], c[0]]), {
+          color: segmentColor,
+          weight: 7,
+          opacity: 0.8,
+          lineJoin: 'round'
+        });
+
+        const startName = points[i]?.name || `Điểm ${i+1}`;
+        const endName = points[i+1]?.name || `Điểm ${i+2}`;
+        const distance = route.legs[i].distance.toFixed(1);
+        const duration = Math.round(route.legs[i].duration / 60);
+        const endOrderId = points[i+1]?.id;
+
+        let popupContent = `
+          <div class="p-1 font-sans min-w-[160px]">
+            <div class="text-[12px] font-bold text-[#1A365D] border-b border-gray-100 pb-1 mb-1">
+              Đoạn đường ${i + 1} ➔ ${i + 2}
+            </div>
+            <div class="text-[11px] text-gray-600">
+              <span class="font-bold" style="color: ${segmentColor}">Quãng đường:</span> ${distance} km
+            </div>
+            <div class="text-[11px] text-gray-600 mb-2">
+              <span class="font-bold" style="color: ${segmentColor}">Thời gian:</span> ${duration} phút
+            </div>
+        `;
+
+        // If the target point is an order, show finish button
+        if (endOrderId && endOrderId !== 'START_USER_LOC') {
+          popupContent += `
+            <button class="finish-order-btn w-full py-1.5 bg-[#10B981] text-white text-[11px] font-bold rounded shadow-sm hover:bg-[#059669] transition-colors flex items-center justify-center gap-1"
+                    data-order-id="${endOrderId}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+              GIAO THÀNH CÔNG
+            </button>
+          `;
+        }
+
+        popupContent += `
+            <div class="mt-2 text-[10px] text-gray-400 italic leading-tight border-t border-gray-50 pt-1">
+              Từ: ${startName}<br>Đến: ${endName}
+            </div>
+          </div>
+        `;
+
+        segment.bindPopup(popupContent);
+
+        // Highlight segment on hover
+        segment.on('mouseover', () => segment.setStyle({ weight: 10, opacity: 1 }));
+        segment.on('mouseout', () => segment.setStyle({ weight: 7, opacity: 0.8 }));
+
+        segment.addTo(layerGroup);
+      }
     } else if (points.length > 1) {
-       // Fallback to straight lines if OSRM failed but we have points
-       const latlngs: L.LatLngExpression[] = points.map(p => [p.lat!, p.lng!]);
-       this.routeLayer = L.polyline(latlngs, {
-         color: '#F97316', // Orange
-         weight: 5,
-         opacity: 0.9,
-         dashArray: '10, 10'
-       }).addTo(this.map);
+      // Fallback to straight lines if OSRM failed or legs missing
+      const latlngs: L.LatLngExpression[] = points.map(p => [p.lat!, p.lng!]);
+      this.routeLayer = L.polyline(latlngs, {
+        color: '#F97316', // Vibrant Orange
+        weight: 6,
+        opacity: 0.9,
+        dashArray: '10, 10'
+      }).addTo(this.map);
     }
 
     const boundsLatLngs: L.LatLng[] = [];
@@ -201,22 +320,27 @@ export class MapComponent implements OnInit, OnDestroy {
     
     // Choose icon based on index
     if (index === 0) {
-      // Warehouse icon
-      iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>`;
-    } else if (index === 1) {
-      // Store icon
-      iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`;
+      // Start/Home icon - larger and different color
+      iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>`;
     } else {
-      // Building icon
+      // Delivery points
       iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>`;
     }
 
+    const markerColor = index === 0 ? '#F97316' : '#1A365D';
+    const markerSize = index === 0 ? 'w-14 h-14' : 'w-12 h-12';
+    const markerScale = index === 0 ? 'scale-125' : 'hover:scale-110';
+
     const htmlContent = `
-      <div class="relative flex flex-col items-center justify-center transform transition-transform hover:scale-110 -mt-10 mr-4">
+      <div class="relative flex flex-col items-center justify-center transform transition-transform ${markerScale} -mt-10 mr-4">
+        <!-- Number Badge -->
+        <div class="absolute -top-3 -right-3 z-20 bg-white text-[#1A365D] text-xs font-black w-6 h-6 rounded-full flex items-center justify-center shadow-md border-2 border-[#1A365D]">
+          ${index + 1}
+        </div>
         <!-- Marker Bubble -->
-        <div class="w-12 h-12 bg-[#1A365D] rounded-full flex items-center justify-center shadow-lg border-2 border-white relative z-10">
+        <div class="${markerSize} bg-[${markerColor}] rounded-full flex items-center justify-center shadow-lg border-2 border-white relative z-10">
           ${iconSvg}
-          <div class="absolute -bottom-2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[10px] border-t-[#1A365D]"></div>
+          <div class="absolute -bottom-2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[10px] border-t-[${markerColor}]"></div>
         </div>
         <!-- Label beneath marker -->
         <div class="mt-2 text-[#1A365D] font-bold text-sm bg-white/80 rounded px-1 min-w-max text-center drop-shadow-sm whitespace-nowrap">

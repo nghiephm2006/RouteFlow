@@ -41,19 +41,25 @@ export class RouteOptimizationService {
             const trip = response.trips[0];
             const waypoints = response.waypoints;
             
-            // Reorder points based on OSRM waypoints output (which has waypoint_index)
-            // waypoints array matches the order of the input coordinates.
-            // waypoints[i].waypoint_index tells us where input point `i` ended up in the optimized route.
+            // Reorder points based on OSRM waypoints output
             const optimizedPoints: Point[] = new Array(geocodedPoints.length);
             waypoints.forEach((wp: any, index: number) => {
               optimizedPoints[wp.waypoint_index] = geocodedPoints[index];
             });
 
+            // Map legs for segment distances
+            const legs = trip.legs.map((leg: any) => ({
+              distance: leg.distance / 1000, // Convert to km
+              duration: leg.duration,
+              geometry: null // Logic to split geometry will be handled in MapComponent or here
+            }));
+
             return {
               optimizedPoints,
               totalDistance: trip.distance / 1000, // Convert meters to km
               totalDuration: trip.duration, // in seconds
-              routeGeoJson: trip.geometry // The GeoJSON LineString
+              routeGeoJson: trip.geometry, // The GeoJSON LineString
+              legs: legs
             };
           }),
           catchError(err => {

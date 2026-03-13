@@ -39,7 +39,9 @@ import { of } from 'rxjs';
                   <svg *ngIf="i === 0" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
                   <svg *ngIf="i > 0" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                 </div>
-                <span class="text-[13px] font-bold text-[#1A365D] tracking-wide">ĐIỂM ĐẾN #{{ i + 1 }}</span>
+                <span class="text-[13px] font-bold text-[#1A365D] tracking-wide">
+                  {{ i === 0 ? 'ĐIỂM BẮT ĐẦU' : 'ĐIỂM ĐẾN #' + i }}
+                </span>
               </div>
               <button *ngIf="points.length > 2" type="button" (click)="removePoint(i)" 
                       class="text-gray-400 hover:text-red-500 transition-colors" title="Xóa điểm đến">
@@ -141,6 +143,13 @@ import { of } from 'rxjs';
 export class SidebarComponent implements OnChanges {
   @Input() routeData: OptimizedRoute | null = null;
   @Input() routePoints: Point[] = [];
+  private _userLocation: {lat: number, lng: number} | null = null;
+  @Input() set userLocation(loc: {lat: number, lng: number} | null) {
+    this._userLocation = loc;
+    if (loc && this.points.length === 0) {
+      this.addPointObject('Vị trí của bạn (Bắt đầu)', 'Vị trí hiện tại', loc.lat, loc.lng);
+    }
+  }
   @Output() calculate = new EventEmitter<Point[]>();
   @Output() pointSelected = new EventEmitter<Point>();
   isLoading = false;
@@ -158,9 +167,12 @@ export class SidebarComponent implements OnChanges {
     });
     
     // Add default points for fresh load
-    this.addPointObject('Kho Trung Tâm', 'Hồ Chí Minh');
+    // Will be partially handled by @Input() userLocation if map ready early
+    if (this.points.length === 0) {
+      this.addPointObject('Kho Trung Tâm', 'Hồ Chí Minh');
+    }
     this.addPointObject('Cửa Hàng A', 'Hồ Gươm, Hồ Chí Minh');
-    this.addPointObject('Lanmark 81', 'Lanmark 81, Hồ Chí Minh');
+    this.addPointObject('Landmark 81', 'Landmark 81, Hồ Chí Minh');
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -178,8 +190,8 @@ export class SidebarComponent implements OnChanges {
       this.points.removeAt(0);
     }
 
-    // Luôn cần có điểm xuất phát (Kho)
-    this.addPointObject('Kho Tổng', 'Hồ Chí Minh');
+    // Points passed from App already include User Location if available
+    // No more hardcoded "Kho Tổng" here
 
     // Thêm các orders vào làm điểm đến/waypoints
     points.forEach(p => {
@@ -303,7 +315,11 @@ export class SidebarComponent implements OnChanges {
       this.points.removeAt(0);
     }
     // Add default empty points
-    this.addPointObject('', '');
+    if (this._userLocation) {
+      this.addPointObject('Vị trí của bạn (Bắt đầu)', 'Vị trí hiện tại', this._userLocation.lat, this._userLocation.lng);
+    } else {
+      this.addPointObject('', '');
+    }
     this.addPointObject('', '');
     
     // Emitting an empty array tells the map and service to clear logic

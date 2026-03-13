@@ -21,7 +21,7 @@ export class OrdersComponent implements OnInit {
   showAddForm: boolean = false;
   orderForm: FormGroup;
   editingOrderId: string | null = null;
-  showStatusEdit: { [id: string]: boolean } = {};
+  isSubmitting = false;
   
   suggestions: any[] = [];
   showDropdown: boolean = false;
@@ -97,30 +97,22 @@ export class OrdersComponent implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  toggleStatusEdit(id: string): void {
-    Object.keys(this.showStatusEdit).forEach(k => { this.showStatusEdit[k] = false; });
-    this.showStatusEdit[id] = true;
-    // Auto-focus after *ngIf renders the <select>
-    setTimeout(() => {
-      const sel = document.getElementById(`status-select-${id}`) as HTMLSelectElement;
-      if (sel) sel.focus();
-    }, 0);
-  }
+  onStatusChange(event: any, order: Order): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const newStatusStr = selectElement.value;
+    const newStatus = parseInt(newStatusStr, 10);
 
-  onStatusBlur(id: string): void {
-    // Small delay so (change) fires before blur closes the select
-    setTimeout(() => { this.showStatusEdit[id] = false; }, 150);
-  }
-
-  updateOrderStatus(order: Order, newStatus: OrderStatus): void {
-    this.showStatusEdit[order.id] = false;
-    if (order.status === newStatus) return; // no change
+    if (order.status === newStatus) return;
 
     const statusName = this.getStatusName(newStatus);
     const confirmed = confirm(
       `Xác nhận thay đổi trạng thái đơn "${order.orderCode}" sang:\n👉 ${statusName}`
     );
-    if (!confirmed) return;
+
+    if (!confirmed) {
+      selectElement.value = order.status.toString();
+      return;
+    }
 
     this.orderService.updateOrderStatus(order.id, newStatus).subscribe({
       next: () => {
@@ -130,9 +122,11 @@ export class OrdersComponent implements OnInit {
       error: (err) => {
         console.error('Error updating status', err);
         alert('Có lỗi xảy ra khi cập nhật trạng thái đơn hàng.');
+        selectElement.value = order.status.toString();
       }
     });
   }
+
 
   forwardOrderToMap(order: Order): void {
     this.forwardToMap.emit(order);

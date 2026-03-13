@@ -43,6 +43,10 @@ Dự án RouteFlow giải quyết bài toán Quản lý & Tối ưu tuyến đư
 4. **Duy trì Trạng thái (State Persistence)**: Chuyển đổi qua lại giữa Tab Map và Orders không bị mất dữ liệu hay vị trí bản đồ (sử dụng `[class.hidden]` và `invalidateSize`).
 5. **Forward to Map**: Nút tắt từ bảng Orders để "bay" thẳng tới vị trí đơn hàng trên bản đồ (FlyTo).
 6. **Smart Markers**: Phóng to Điểm bắt đầu (Home), đánh số thứ tự (1, 2, 3...) cho lộ trình giao hàng trực quan.
+7. **Dark Mode & Theme Support**: Sử dụng `ThemeService` (Signals) để quản lý giao diện. Bản đồ Leaflet được cố định ở Light Mode theo yêu cầu người dùng để đảm bảo độ rõ nét.
+8. **Realistic Routing Estimation**:
+   - Tích hợp cấu hình **Traffic Multiplier** (Hệ số kẹt xe) và **Service Time** (Thời gian giao hàng/điểm).
+   - Hỗ trợ **Random Mode**: Tự động chọn hệ số ngẫu nhiên từ **1.5x - 2.0x** cho mỗi lần tính toán để mô phỏng tính biến thiên của giao thông.
 
 ---
 
@@ -58,6 +62,7 @@ Dự án RouteFlow giải quyết bài toán Quản lý & Tối ưu tuyến đư
 - [ ] **Dashboard Analytics**: Thống kê tỷ lệ giao hàng, quãng đường bằng biểu đồ (Chart.js).
 
 ### ⚙️ Thuật toán & Nâng cao
+- [x] **Realistic Routing**: Hệ số kẹt xe tùy chỉnh & ngẫu nhiên hóa (1.5 - 2.0).
 - [ ] **Auto-Cluster System**: Gom nhóm Đơn hàng theo lô/khu vực (K-Means).
 - [ ] **Multi-Vehicle Routing (VRP)**: Tối ưu cho nhiều xe/shipper cùng lúc.
 - [ ] **Realtime Tracking**: Theo dõi tọa độ GPS Shipper qua SignalR.
@@ -70,4 +75,5 @@ Bạn vừa nạp xong ngữ cảnh. Hãy ghi nhớ:
 - `Backend`: Tuyệt đối tuân thủ Clean Architecture.
 - `Frontend`: Dùng Tailwind, Logic Map nằm ở `MapComponent`, xử lý Data chính ở `App.ts`.
 - `Models`: `OptimizedRoute` và `Order` là 2 schema quan trọng nhất. 
+- **[QUY TẮC COMMIT]**: Mỗi khi người dùng yêu cầu "commit push", bạn **BẮT BUỘC** phải kiểm tra và cập nhật `README.md` và `AI_CONTEXT.md` để khớp với các tính năng mới vừa làm trước khi thực hiện lệnh git.
 Bắt đầu trả lời người dùng đi!

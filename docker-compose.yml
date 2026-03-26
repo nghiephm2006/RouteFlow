@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_DB: routeflow
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "routeflow-local-change-me"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-routeflow-local-change-me}"
     ports:
       - "5432:5432"
     healthcheck:
@@ -27,7 +27,7 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=routeflow;Username=postgres;Password=routeflow-local-change-me"
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=routeflow;Username=postgres;Password=${POSTGRES_PASSWORD:-routeflow-local-change-me}"
       Cors__AllowedOrigins__0: "http://localhost:8080"
       Database__ApplyMigrationsOnStartup: "true"
       Features__EnableSwagger: "true"

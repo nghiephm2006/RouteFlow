@@ -125,6 +125,15 @@ Sau khi chạy:
 - `appsettings.json` chỉ nên chứa placeholder, không chứa mật khẩu thật.
 - Nếu credentials Gmail cũ từng được commit trước đây, cần **rotate ngay** vì secret đã từng nằm trong git history.
 
+### Trạng thái Deploy hiện tại
+
+- **[DONE]** Bản deploy đầu tiên đang chạy trên **Azure VM**.
+- Frontend public: `Azure VM deployment (endpoint omitted)`
+- Backend health: `Azure VM deployment (endpoint omitted)`
+- Swagger: `Azure VM deployment (endpoint omitted)`
+- Mô hình hiện tại: 1 Ubuntu VM chạy Docker với 3 container `frontend + backend + postgres`.
+- Trạng thái này phù hợp để demo/test nội bộ, chưa phải production-ready hoàn chỉnh vì chưa có domain và HTTPS.
+
 ---
 
 ## 🚀 Roadmap 3 Tháng
@@ -157,7 +166,7 @@ Roadmap này ưu tiên hướng **dispatcher-first**: làm RouteFlow trở thàn
 - **[TODO]** Route/Geocode Reliability: bổ sung trạng thái lỗi rõ ràng khi Nominatim hoặc OSRM thất bại, tránh UI im lặng hoặc route sai mà user không biết.
 - **[TODO]** Retry/Caching cơ bản cho geocoding background job để giảm gọi lặp và tăng độ ổn định.
 - **[TODO]** Chuẩn hoá trạng thái đơn hàng theo luồng giao thực tế: Pending -> InProgress -> Delivered -> Failed/Skipped.
-- **[TODO]** Deployment baseline: hoàn thiện cấu hình môi trường, connection string PostgreSQL, Docker hoá backend/frontend ở mức đủ chạy ổn trên môi trường test.
+- **[DONE]** Deployment baseline: đã hoàn thiện cấu hình môi trường, connection string PostgreSQL, Docker hoá backend/frontend và deploy bản đầu trên Azure VM ở mức đủ chạy ổn cho demo/test.
 
 **Tiêu chí hoàn thành**
 - User có thể import đơn, tối ưu tuyến, mở app dẫn đường ngoài thực địa và quay lại cập nhật trạng thái mà không phải nhập tay lại.

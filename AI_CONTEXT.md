@@ -21,6 +21,7 @@ Dự án RouteFlow giải quyết bài toán Quản lý & Tối ưu tuyến đư
    - **Database**: PostgreSQL, truy cập qua Entity Framework Core.
    - **Libraries**: FluentValidation (bắt ở PipelineBehavior của MediatR), EPPlus (để Import/Template Excel).
    - **Deploy baseline**: Có `Dockerfile`, `docker-compose.yml`, `health endpoint`, config qua Environment Variables, migration khi startup.
+   - **Deploy status**: Bản đầu tiên đã được deploy lên Azure VM bằng Docker.
 
 ---
 
@@ -78,11 +79,19 @@ Dự án RouteFlow giải quyết bài toán Quản lý & Tối ưu tuyến đư
 - [ ] Reliability cho geocode/route: error state rõ ràng, không để user thao tác trong mù mờ.
 - [ ] Retry/caching cơ bản cho geocoding background job.
 - [ ] Chuẩn hoá trạng thái đơn hàng theo luồng giao thực tế: Pending, InProgress, Delivered, Failed/Skipped.
-- [ ] Deployment baseline: env config, connection string PostgreSQL, Docker hoá mức đủ deploy test.
+- [x] Deployment baseline: env config, connection string PostgreSQL, Docker hoá mức đủ deploy test.
 
 **Definition of done tháng 1**
 - Có thể chạy luồng nhập đơn -> tối ưu -> điều hướng ngoài thực địa -> cập nhật trạng thái mà không phải xử lý tay các lỗi phổ biến.
 - Khi API ngoài lỗi, hệ thống báo được đơn nào lỗi và lỗi thuộc bước nào.
+
+### Trạng thái deploy hiện tại
+- Azure resource group: `routeflow-rg`
+- Azure VM: `routeflow-vm`
+- Public frontend: `Azure VM deployment (endpoint omitted)`
+- Public backend health: `Azure VM deployment (endpoint omitted)`
+- Public Swagger: `Azure VM deployment (endpoint omitted)`
+- Trạng thái hiện tại là demo/test running state, chưa có domain và HTTPS.
 
 ### Tháng 2: Điều phối nhiều cụm
 - [ ] Auto-Cluster cơ bản theo khu vực/lô.
@@ -114,6 +123,7 @@ Bạn vừa nạp xong ngữ cảnh. Hãy ghi nhớ:
 - `Backend`: Tuyệt đối tuân thủ Clean Architecture.
 - Backend stack hiện tại được chốt là `.NET 10 + PostgreSQL`.
 - Trạng thái hiện tại đã có baseline deploy test với Docker Compose; khi sửa config phải giữ được flow đó.
+- Bản đầu tiên đã chạy trên Azure VM; nếu thay đổi deploy flow phải cập nhật lại README và AI context cho đúng trạng thái hạ tầng.
 - `Frontend`: Dùng Tailwind, Logic Map nằm ở `MapComponent`, xử lý Data chính ở `App.ts`.
 - `Models`: `OptimizedRoute` và `Order` là 2 schema quan trọng nhất. 
 - Khi đề xuất tính năng mới, phải kiểm tra nó có phục vụ lõi "điều phối + tối ưu + thực thi giao hàng" hay chỉ làm roadmap phình ra.

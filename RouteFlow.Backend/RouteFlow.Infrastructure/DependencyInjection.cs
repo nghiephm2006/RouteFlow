@@ -20,7 +20,7 @@ namespace RouteFlow.Infrastructure
             }
 
             services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(
+                options.UseNpgsql(
                     connectionString,
                     b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
 

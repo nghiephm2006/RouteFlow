@@ -1,20 +1,21 @@
 services:
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: routeflow-sqlserver
+  postgres:
+    image: postgres:17-alpine
+    container_name: routeflow-postgres
     environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "routeflow-local-change-me"
+      POSTGRES_DB: routeflow
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "routeflow-local-change-me"
     ports:
-      - "1433:1433"
+      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P $$MSSQL_SA_PASSWORD -Q 'SELECT 1' || exit 1"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 20
-      start_period: 20s
+      start_period: 10s
     volumes:
-      - sqlserver-data:/var/opt/mssql
+      - postgres-data:/var/lib/postgresql/data
 
   backend:
     build:
@@ -22,11 +23,11 @@ services:
       dockerfile: RouteFlow.Backend/RouteFlow.Api/Dockerfile
     container_name: routeflow-backend
     depends_on:
-      sqlserver:
+      postgres:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=RouteFlowDb;User Id=sa;Password=routeflow-local-change-me;TrustServerCertificate=True;Encrypt=False;MultipleActiveResultSets=true"
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=routeflow;Username=postgres;Password=routeflow-local-change-me"
       Cors__AllowedOrigins__0: "http://localhost:8080"
       Database__ApplyMigrationsOnStartup: "true"
       Features__EnableSwagger: "true"
@@ -44,4 +45,4 @@ services:
       - "8080:80"
 
 volumes:
-  sqlserver-data:
+  postgres-data:

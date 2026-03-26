@@ -9,7 +9,7 @@ RouteFlow là giải pháp phần mềm toàn diện dành cho việc Quản lý
 Dự án được chia làm 2 thư mục riêng biệt tại Root:
 
 1. **`shipper-route-optimization/`**: Dự án Frontend xây dựng bằng Angular Standalone.
-2. **`RouteFlow.Backend/`**: Dự án Backend API xây dựng bằng .NET 10 (C#) theo chuẩn Clean Architecture.
+2. **`RouteFlow.Backend/`**: Dự án Backend API xây dựng bằng .NET 10 (C#) theo chuẩn Clean Architecture, sử dụng PostgreSQL.
 
 ---
 
@@ -72,7 +72,7 @@ Hệ thống API RESTful đóng vai trò cung cấp, quản lý dữ liệu Mast
 
 - **Framework**: .NET 10 (ASP.NET Core Web API).
 - **Ngôn ngữ**: C# 12+.
-- **Database**: SQL Server, truy cập qua Entity Framework Core và quản lý schema bằng EF Migrations.
+- **Database**: PostgreSQL, truy cập qua Entity Framework Core và quản lý schema bằng EF Migrations.
 - **Libraries**: EPPlus (đọc/xuất Excel), Swashbuckle (Swagger UI định dạng API).
 
 ### Cấu trúc Projects
@@ -84,7 +84,7 @@ Hệ thống API RESTful đóng vai trò cung cấp, quản lý dữ liệu Mast
 
 ### Cấu hình và Khởi chạy
 
-1. Yêu cầu hệ thống đã cài `.NET 10 SDK` và có SQL Server khả dụng.
+1. Yêu cầu hệ thống đã cài `.NET 10 SDK` và có PostgreSQL khả dụng.
 2. Cấu hình `ConnectionStrings__DefaultConnection` qua Environment Variables hoặc User Secrets. Không lưu credentials thật vào repo.
 3. Nếu cần gửi email, cấu hình thêm `SmtpSettings__Host`, `SmtpSettings__Port`, `SmtpSettings__Username`, `SmtpSettings__Password`, `SmtpSettings__FromEmail`.
 4. Mở cmd tại root folder:
@@ -105,7 +105,7 @@ Repo hiện đã được chuẩn hoá ở mức deploy test với các điểm 
 - **CORS theo whitelist**: Không còn `AllowAnyOrigin` mặc định.
 - **Health endpoint**: Có `GET /health` để check liveness.
 - **Auto migration khi startup**: Có thể bật/tắt qua `Database:ApplyMigrationsOnStartup`.
-- **Container hoá**: Có `Dockerfile` cho Backend, `Dockerfile + nginx.conf` cho Frontend, và `docker-compose.yml` kèm SQL Server.
+- **Container hoá**: Có `Dockerfile` cho Backend, `Dockerfile + nginx.conf` cho Frontend, và `docker-compose.yml` kèm PostgreSQL.
 
 ### Chạy bằng Docker Compose
 
@@ -118,7 +118,7 @@ Sau khi chạy:
 - Frontend: `http://localhost:8080`
 - Backend API: `http://localhost:8081`
 - Health: `http://localhost:8081/health`
-- SQL Server: `localhost:1433`
+- PostgreSQL: `localhost:5432`
 
 ### Lưu ý bảo mật
 
@@ -157,7 +157,7 @@ Roadmap này ưu tiên hướng **dispatcher-first**: làm RouteFlow trở thàn
 - **[TODO]** Route/Geocode Reliability: bổ sung trạng thái lỗi rõ ràng khi Nominatim hoặc OSRM thất bại, tránh UI im lặng hoặc route sai mà user không biết.
 - **[TODO]** Retry/Caching cơ bản cho geocoding background job để giảm gọi lặp và tăng độ ổn định.
 - **[TODO]** Chuẩn hoá trạng thái đơn hàng theo luồng giao thực tế: Pending -> InProgress -> Delivered -> Failed/Skipped.
-- **[TODO]** Deployment baseline: hoàn thiện cấu hình môi trường, connection string SQL Server, Docker hoá backend/frontend ở mức đủ chạy ổn trên môi trường test.
+- **[TODO]** Deployment baseline: hoàn thiện cấu hình môi trường, connection string PostgreSQL, Docker hoá backend/frontend ở mức đủ chạy ổn trên môi trường test.
 
 **Tiêu chí hoàn thành**
 - User có thể import đơn, tối ưu tuyến, mở app dẫn đường ngoài thực địa và quay lại cập nhật trạng thái mà không phải nhập tay lại.

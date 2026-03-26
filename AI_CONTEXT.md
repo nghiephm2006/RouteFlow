@@ -18,7 +18,7 @@ Dự án RouteFlow giải quyết bài toán Quản lý & Tối ưu tuyến đư
    - .NET 10 (ASP.NET Core Web API), C# 12.
    - **Architecture**: Clean Architecture & Domain-Driven Design (DDD).
    - **Patterns**: CQRS với MediatR, Repository Pattern, Unit of Work.
-   - **Database**: SQL Server, truy cập qua Entity Framework Core.
+   - **Database**: PostgreSQL, truy cập qua Entity Framework Core.
    - **Libraries**: FluentValidation (bắt ở PipelineBehavior của MediatR), EPPlus (để Import/Template Excel).
    - **Deploy baseline**: Có `Dockerfile`, `docker-compose.yml`, `health endpoint`, config qua Environment Variables, migration khi startup.
 
@@ -78,7 +78,7 @@ Dự án RouteFlow giải quyết bài toán Quản lý & Tối ưu tuyến đư
 - [ ] Reliability cho geocode/route: error state rõ ràng, không để user thao tác trong mù mờ.
 - [ ] Retry/caching cơ bản cho geocoding background job.
 - [ ] Chuẩn hoá trạng thái đơn hàng theo luồng giao thực tế: Pending, InProgress, Delivered, Failed/Skipped.
-- [ ] Deployment baseline: env config, connection string SQL Server, Docker hoá mức đủ deploy test.
+- [ ] Deployment baseline: env config, connection string PostgreSQL, Docker hoá mức đủ deploy test.
 
 **Definition of done tháng 1**
 - Có thể chạy luồng nhập đơn -> tối ưu -> điều hướng ngoài thực địa -> cập nhật trạng thái mà không phải xử lý tay các lỗi phổ biến.
@@ -112,7 +112,7 @@ Dự án RouteFlow giải quyết bài toán Quản lý & Tối ưu tuyến đư
 **[CHỈ THỊ CHO AI]**
 Bạn vừa nạp xong ngữ cảnh. Hãy ghi nhớ:
 - `Backend`: Tuyệt đối tuân thủ Clean Architecture.
-- Backend stack hiện tại được chốt là `.NET 10 + SQL Server`.
+- Backend stack hiện tại được chốt là `.NET 10 + PostgreSQL`.
 - Trạng thái hiện tại đã có baseline deploy test với Docker Compose; khi sửa config phải giữ được flow đó.
 - `Frontend`: Dùng Tailwind, Logic Map nằm ở `MapComponent`, xử lý Data chính ở `App.ts`.
 - `Models`: `OptimizedRoute` và `Order` là 2 schema quan trọng nhất. 

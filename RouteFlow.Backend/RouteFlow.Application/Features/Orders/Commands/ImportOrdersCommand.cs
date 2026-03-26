@@ -11,7 +11,7 @@ namespace RouteFlow.Application.Features.Orders.Commands
 {
     public class ImportOrdersCommand : IRequest<bool>
     {
-        public Stream ExcelStream { get; set; }
+        public required Stream ExcelStream { get; init; }
     }
 
     public class ImportOrdersCommandHandler : IRequestHandler<ImportOrdersCommand, bool>

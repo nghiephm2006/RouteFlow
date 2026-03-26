@@ -18,12 +18,12 @@ namespace RouteFlow.Infrastructure.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<Order> GetByIdAsync(Guid id)
+        public async Task<Order?> GetByIdAsync(Guid id)
         {
             return await _context.Orders.FindAsync(id);
         }
 
-        public async Task<Order> GetByOrderCodeAsync(string orderCode)
+        public async Task<Order?> GetByOrderCodeAsync(string orderCode)
         {
             return await _context.Orders.FirstOrDefaultAsync(o => o.OrderCode == orderCode);
         }

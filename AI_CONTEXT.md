@@ -20,6 +20,7 @@ Dự án RouteFlow giải quyết bài toán Quản lý & Tối ưu tuyến đư
    - **Patterns**: CQRS với MediatR, Repository Pattern, Unit of Work.
    - **Database**: SQL Server, truy cập qua Entity Framework Core.
    - **Libraries**: FluentValidation (bắt ở PipelineBehavior của MediatR), EPPlus (để Import/Template Excel).
+   - **Deploy baseline**: Có `Dockerfile`, `docker-compose.yml`, `health endpoint`, config qua Environment Variables, migration khi startup.
 
 ---
 
@@ -63,6 +64,7 @@ Dự án RouteFlow giải quyết bài toán Quản lý & Tối ưu tuyến đư
 - Route optimization + re-optimize khi trạng thái đơn thay đổi.
 - Traffic multiplier + service time để mô phỏng thực tế.
 - Các UX đã chứng minh giá trị như forward to map, smart markers, state persistence.
+- Deploy-ready baseline: config sạch, không hard-code secret, Docker chạy được, backend/frontend tách config theo environment.
 
 ### Những gì chưa ưu tiên
 - SMS.
@@ -111,6 +113,7 @@ Dự án RouteFlow giải quyết bài toán Quản lý & Tối ưu tuyến đư
 Bạn vừa nạp xong ngữ cảnh. Hãy ghi nhớ:
 - `Backend`: Tuyệt đối tuân thủ Clean Architecture.
 - Backend stack hiện tại được chốt là `.NET 10 + SQL Server`.
+- Trạng thái hiện tại đã có baseline deploy test với Docker Compose; khi sửa config phải giữ được flow đó.
 - `Frontend`: Dùng Tailwind, Logic Map nằm ở `MapComponent`, xử lý Data chính ở `App.ts`.
 - `Models`: `OptimizedRoute` và `Order` là 2 schema quan trọng nhất. 
 - Khi đề xuất tính năng mới, phải kiểm tra nó có phục vụ lõi "điều phối + tối ưu + thực thi giao hàng" hay chỉ làm roadmap phình ra.

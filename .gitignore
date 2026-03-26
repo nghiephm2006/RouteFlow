@@ -1,5 +1,7 @@
 .vs/
 .vscode/
+.idea/
+.dotnet/
 
 # .NET build output
 bin/
@@ -9,11 +11,14 @@ obj/
 *.user
 *.rsuser
 *.suo
+*.DotSettings.user
 
 # Logs and temp files
 *.log
 *.tmp
 *.temp
+build_errors.txt
+ef_error.txt
 
 # Node / frontend
 node_modules/

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Order {
   id: string;
@@ -34,8 +35,8 @@ export interface OrderStats {
   providedIn: 'root'
 })
 export class OrderService {
-  private readonly apiUrl = 'https://localhost:7141/api/orders';
-  private readonly routesUrl = 'https://localhost:7141/api/routes';
+  private readonly apiUrl = `${environment.apiBaseUrl}/api/orders`;
+  private readonly routesUrl = `${environment.apiBaseUrl}/api/routes`;
 
   constructor(private http: HttpClient) {}
 

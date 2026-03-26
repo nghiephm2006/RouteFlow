@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MimeKit;
 using RouteFlow.Application.Interfaces;
 
@@ -22,11 +23,12 @@ namespace RouteFlow.Infrastructure.Services
     public class SmtpEmailService : IEmailService
     {
         private readonly SmtpSettings _settings;
+        private readonly ILogger<SmtpEmailService> _logger;
 
-        public SmtpEmailService(IConfiguration configuration)
+        public SmtpEmailService(IConfiguration configuration, ILogger<SmtpEmailService> logger)
         {
-            _settings = configuration.GetSection("SmtpSettings").Get<SmtpSettings>()
-                ?? throw new InvalidOperationException("SmtpSettings configuration is missing.");
+            _settings = configuration.GetSection("SmtpSettings").Get<SmtpSettings>() ?? new SmtpSettings();
+            _logger = logger;
         }
 
         public async Task SendOrderStatusChangedAsync(
@@ -37,6 +39,13 @@ namespace RouteFlow.Infrastructure.Services
         {
             // Skip sending if no email is configured
             if (string.IsNullOrWhiteSpace(toEmail)) return;
+            if (!IsConfigured())
+            {
+                _logger.LogWarning(
+                    "Skipping email for order {OrderCode} because SMTP settings are incomplete.",
+                    orderCode);
+                return;
+            }
 
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(_settings.FromName, _settings.FromEmail));
@@ -70,6 +79,15 @@ namespace RouteFlow.Infrastructure.Services
             await client.AuthenticateAsync(_settings.Username, _settings.Password);
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
+        }
+
+        private bool IsConfigured()
+        {
+            return !string.IsNullOrWhiteSpace(_settings.Host)
+                && _settings.Port > 0
+                && !string.IsNullOrWhiteSpace(_settings.Username)
+                && !string.IsNullOrWhiteSpace(_settings.Password)
+                && !string.IsNullOrWhiteSpace(_settings.FromEmail);
         }
     }
 }

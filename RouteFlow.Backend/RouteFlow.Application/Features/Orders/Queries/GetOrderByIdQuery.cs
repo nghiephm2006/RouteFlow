@@ -7,9 +7,9 @@ using RouteFlow.Domain.Interfaces;
 
 namespace RouteFlow.Application.Features.Orders.Queries
 {
-    public record GetOrderByIdQuery(Guid Id) : IRequest<OrderDto>;
+    public record GetOrderByIdQuery(Guid Id) : IRequest<OrderDto?>;
 
-    public class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, OrderDto>
+    public class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, OrderDto?>
     {
         private readonly IOrderRepository _repository;
 
@@ -18,7 +18,7 @@ namespace RouteFlow.Application.Features.Orders.Queries
             _repository = repository;
         }
 
-        public async Task<OrderDto> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
+        public async Task<OrderDto?> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
         {
             var order = await _repository.GetByIdAsync(request.Id);
             

@@ -7,8 +7,8 @@ namespace RouteFlow.Domain.Interfaces
 {
     public interface IOrderRepository
     {
-        Task<Order> GetByIdAsync(Guid id);
-        Task<Order> GetByOrderCodeAsync(string orderCode);
+        Task<Order?> GetByIdAsync(Guid id);
+        Task<Order?> GetByOrderCodeAsync(string orderCode);
         Task<IEnumerable<Order>> GetByIdsAsync(IEnumerable<Guid> ids);
         Task<IEnumerable<Order>> GetAllAsync();
         Task<IEnumerable<Order>> GetPendingOrdersAsync();

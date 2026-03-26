@@ -1,0 +1,7 @@
+**/bin/
+**/obj/
+.idea/
+.vs/
+build.log
+build_errors.txt
+ef_error.txt

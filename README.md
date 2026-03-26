@@ -47,6 +47,8 @@ npm run start
 
 _Giao diện Frontend chạy mặc định tại: `http://localhost:4200`_
 
+_Trong môi trường development, Frontend tự gọi API qua `https://localhost:7141`. Khi build production trong Docker, Frontend dùng đường dẫn tương đối `/api` và được Nginx proxy sang Backend._
+
 ---
 
 ## ⚙️ 2. Backend - RouteFlow.Backend
@@ -82,15 +84,46 @@ Hệ thống API RESTful đóng vai trò cung cấp, quản lý dữ liệu Mast
 
 ### Cấu hình và Khởi chạy
 
-1. Yêu cầu hệ thống đã cài `.NET SDK`.
-2. Mở cmd tại root folder:
+1. Yêu cầu hệ thống đã cài `.NET 10 SDK` và có SQL Server khả dụng.
+2. Cấu hình `ConnectionStrings__DefaultConnection` qua Environment Variables hoặc User Secrets. Không lưu credentials thật vào repo.
+3. Nếu cần gửi email, cấu hình thêm `SmtpSettings__Host`, `SmtpSettings__Port`, `SmtpSettings__Username`, `SmtpSettings__Password`, `SmtpSettings__FromEmail`.
+4. Mở cmd tại root folder:
 
 ```bash
 cd RouteFlow.Backend/RouteFlow.Api
 dotnet run
 ```
 
-_API Server và bảng đặc tả Swagger chạy mặc định tại: `http://localhost:5xxx/swagger`_
+_API Server và Swagger chạy mặc định tại: `https://localhost:7141/swagger` trong development._
+
+### Deploy-Ready Baseline
+
+Repo hiện đã được chuẩn hoá ở mức deploy test với các điểm sau:
+
+- **Config theo Environment**: Backend đọc `ConnectionStrings`, `SmtpSettings`, `Cors`, `Database`, `Features` từ config/env vars.
+- **Không hard-code API URL production**: Frontend dùng environment cho development và dùng `/api` ở production.
+- **CORS theo whitelist**: Không còn `AllowAnyOrigin` mặc định.
+- **Health endpoint**: Có `GET /health` để check liveness.
+- **Auto migration khi startup**: Có thể bật/tắt qua `Database:ApplyMigrationsOnStartup`.
+- **Container hoá**: Có `Dockerfile` cho Backend, `Dockerfile + nginx.conf` cho Frontend, và `docker-compose.yml` kèm SQL Server.
+
+### Chạy bằng Docker Compose
+
+```bash
+docker compose up --build
+```
+
+Sau khi chạy:
+
+- Frontend: `http://localhost:8080`
+- Backend API: `http://localhost:8081`
+- Health: `http://localhost:8081/health`
+- SQL Server: `localhost:1433`
+
+### Lưu ý bảo mật
+
+- `appsettings.json` chỉ nên chứa placeholder, không chứa mật khẩu thật.
+- Nếu credentials Gmail cũ từng được commit trước đây, cần **rotate ngay** vì secret đã từng nằm trong git history.
 
 ---
 

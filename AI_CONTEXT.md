@@ -18,7 +18,7 @@ Dự án RouteFlow giải quyết bài toán Quản lý & Tối ưu tuyến đư
    - .NET 10 (ASP.NET Core Web API), C# 12.
    - **Architecture**: Clean Architecture & Domain-Driven Design (DDD).
    - **Patterns**: CQRS với MediatR, Repository Pattern, Unit of Work.
-   - **Database**: Entity Framework Core (chưa config thực tế, hiện đang dùng setup EF).
+   - **Database**: SQL Server, truy cập qua Entity Framework Core.
    - **Libraries**: FluentValidation (bắt ở PipelineBehavior của MediatR), EPPlus (để Import/Template Excel).
 
 ---
@@ -50,30 +50,70 @@ Dự án RouteFlow giải quyết bài toán Quản lý & Tối ưu tuyến đư
 
 ---
 
-## 🎯 Định hướng Roadmap (Việc cần làm tiếp theo)
+## 🎯 Định hướng Product & Roadmap 3 Tháng
 
-### 📱 Trải nghiệm Shipper (Sau khi Deploy)
-- [ ] **PWA (Progressive Web App)**: Cài đặt ứng dụng như app mobile không cần Store.
-- [ ] **Proof of Delivery**: Chụp ảnh đơn hàng & ký nhận điện tử khi hoàn tất giao.
-- [ ] **Navigation Deep Link**: Nút mở nhanh Google Maps/Waze để chỉ đường.
+### Định hướng sản phẩm hiện tại
+- Không xem RouteFlow là "nền tảng logistics toàn diện" ở giai đoạn này.
+- Định vị thực tế hơn: **công cụ điều phối và tối ưu giao hàng cho batch đơn trong ngày**, ưu tiên giúp điều phối viên và shipper xử lý route nhanh, rõ, ít lỗi hơn.
+- Chọn hướng **dispatcher-first** trước: làm chắc phần nhập đơn, chia cụm, tối ưu tuyến, theo dõi tiến độ; sau đó mới đầu tư mạnh vào trải nghiệm shipper ngoài thực địa.
 
-### 🎨 Giao diện & Trải nghiệm (UI/UX)
-- [x] **Dark Mode**: Chế độ tối hiện đại cho toàn bộ hệ thống.
-- [ ] **Dashboard Analytics**: Thống kê tỷ lệ giao hàng, quãng đường bằng biểu đồ (Chart.js).
+### Những gì phải giữ làm lõi
+- CRUD đơn hàng + import Excel.
+- Geocoding + map visualization.
+- Route optimization + re-optimize khi trạng thái đơn thay đổi.
+- Traffic multiplier + service time để mô phỏng thực tế.
+- Các UX đã chứng minh giá trị như forward to map, smart markers, state persistence.
 
-### ⚙️ Thuật toán & Nâng cao
-- [x] **Realistic Routing**: Hệ số kẹt xe tùy chỉnh & ngẫu nhiên hóa (1.5 - 2.0).
-- [ ] **Auto-Cluster System**: Gom nhóm Đơn hàng theo lô/khu vực (K-Means).
-- [ ] **Multi-Vehicle Routing (VRP)**: Tối ưu cho nhiều xe/shipper cùng lúc.
-- [ ] **Realtime Tracking**: Theo dõi tọa độ GPS Shipper qua SignalR.
-- [ ] **Tích hợp SMS**: Gửi tin nhắn tự động (Zalo/Twilio).
+### Những gì chưa ưu tiên
+- SMS.
+- Dashboard nặng về biểu đồ.
+- PWA nếu luồng mobile chưa đủ chắc.
+- Realtime tracking phức tạp.
+- VRP tối ưu toàn cục khi cluster và multi-shipper cơ bản còn chưa xong.
+
+### Tháng 1: Ổn định lõi vận hành route
+- [ ] Navigation Deep Link: mở Google Maps/Waze từ điểm giao hoặc chặng tiếp theo.
+- [ ] Reliability cho geocode/route: error state rõ ràng, không để user thao tác trong mù mờ.
+- [ ] Retry/caching cơ bản cho geocoding background job.
+- [ ] Chuẩn hoá trạng thái đơn hàng theo luồng giao thực tế: Pending, InProgress, Delivered, Failed/Skipped.
+- [ ] Deployment baseline: env config, connection string SQL Server, Docker hoá mức đủ deploy test.
+
+**Definition of done tháng 1**
+- Có thể chạy luồng nhập đơn -> tối ưu -> điều hướng ngoài thực địa -> cập nhật trạng thái mà không phải xử lý tay các lỗi phổ biến.
+- Khi API ngoài lỗi, hệ thống báo được đơn nào lỗi và lỗi thuộc bước nào.
+
+### Tháng 2: Điều phối nhiều cụm
+- [ ] Auto-Cluster cơ bản theo khu vực/lô.
+- [ ] Multi-Vehicle Routing bản pragmatic: cluster trước, gán cụm cho shipper sau, tối ưu từng cụm riêng.
+- [ ] Màn hình điều phối tối thiểu cho từng cụm.
+- [ ] Nhật ký thay đổi trạng thái và lỗi route/geocode.
+- [ ] Dashboard vận hành tối thiểu: Pending, InProgress, Delivered, Failed trong ngày.
+
+**Definition of done tháng 2**
+- Điều phối viên chia được một batch đơn thành nhiều cụm hợp lý.
+- Có thể gán cụm cho nhiều shipper ở mức thao tác được.
+- Có số liệu vận hành đủ để phát hiện cụm hoặc shipper đang bị nghẽn.
+
+### Tháng 3: Khép vòng thực địa
+- [ ] Proof of Delivery bản nhẹ: ảnh xác nhận + thời điểm hoàn tất.
+- [ ] Chữ ký điện tử hoặc xác nhận người nhận ở mức tối giản nếu flow cho phép.
+- [ ] PWA cơ bản sau khi web mobile ổn định.
+- [ ] Realtime tracking bản tối thiểu theo chu kỳ.
+- [ ] Tối ưu UX mobile cho 4 thao tác chính: xem điểm tiếp theo, mở navigation, cập nhật trạng thái, chụp POD.
+
+**Definition of done tháng 3**
+- RouteFlow hỗ trợ đủ chuỗi điều phối -> giao hàng -> xác nhận hoàn tất.
+- Một shipper có thể chạy luồng chính trên điện thoại mà không cần quay lại desktop giữa chừng.
 
 ---
 
 **[CHỈ THỊ CHO AI]**
 Bạn vừa nạp xong ngữ cảnh. Hãy ghi nhớ:
 - `Backend`: Tuyệt đối tuân thủ Clean Architecture.
+- Backend stack hiện tại được chốt là `.NET 10 + SQL Server`.
 - `Frontend`: Dùng Tailwind, Logic Map nằm ở `MapComponent`, xử lý Data chính ở `App.ts`.
 - `Models`: `OptimizedRoute` và `Order` là 2 schema quan trọng nhất. 
+- Khi đề xuất tính năng mới, phải kiểm tra nó có phục vụ lõi "điều phối + tối ưu + thực thi giao hàng" hay chỉ làm roadmap phình ra.
+- Ưu tiên feature tạo giá trị vận hành trực tiếp trước các feature thiên về trình diễn hoặc notification.
 - **[QUY TẮC COMMIT]**: Mỗi khi người dùng yêu cầu "commit push", bạn **BẮT BUỘC** phải kiểm tra và cập nhật `README.md` và `AI_CONTEXT.md` để khớp với các tính năng mới vừa làm trước khi thực hiện lệnh git.
 Bắt đầu trả lời người dùng đi!

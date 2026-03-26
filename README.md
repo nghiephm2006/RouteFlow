@@ -70,7 +70,7 @@ Hệ thống API RESTful đóng vai trò cung cấp, quản lý dữ liệu Mast
 
 - **Framework**: .NET 10 (ASP.NET Core Web API).
 - **Ngôn ngữ**: C# 12+.
-- **Database**: Entity Framework Core (Hỗ trợ LocalDb / SQL Server chuẩn bị sẵn qua EF Migrations).
+- **Database**: SQL Server, truy cập qua Entity Framework Core và quản lý schema bằng EF Migrations.
 - **Libraries**: EPPlus (đọc/xuất Excel), Swashbuckle (Swagger UI định dạng API).
 
 ### Cấu trúc Projects
@@ -94,28 +94,97 @@ _API Server và bảng đặc tả Swagger chạy mặc định tại: `http://l
 
 ---
 
-## 🚀 Định hướng Phát triển (Roadmap)
+## 🚀 Roadmap 3 Tháng
 
-1. **[DONE]** Tính năng Cập nhật trạng thái đơn hàng — Click badge trên bảng để đổi trạng thái, có popup xác nhận.
-2. **[DONE]** Chức năng Forward chuyển tiếp góc nhìn sang Tab Bản đồ để xem nhanh vị trí từng đơn.
-3. **[DONE]** Quản lý chi tiết Đơn hàng: Bổ sung Phone + Email — Cập nhật trong form Sửa, gửi email tự động khi đổi trạng thái.
-4. **[DONE]** Email notification gửi thành công qua Gmail SMTP khi cập nhật trạng thái đơn.
-5. **[DONE]** Fix lỗi layout badge trạng thái: Đã fix dứt điểm hiện tượng "clear ô", hiển thị native Dropdown một cách mượt mà ngay trong lần click đầu tiên bằng cơ chế Select Overlay.
-6. **[DONE]** Trường Phone chưa được lưu/hiển thị đúng trên UI — Đã bổ sung cột SĐT vào bảng danh sách đơn hàng.
-7. **[DONE]** Hệ thống Marker cải tiến: Phóng to điểm bắt đầu, đánh số thứ tự 1,2,3... cho toàn bộ lộ trình.
-8. **[DONE]** Tương tác Lộ trình: Click xem quãng đường từng chặng & Cập nhật trạng thái "Giao thành công" ngay trên Bản đồ.
-9. **[DONE]** Duy trì trạng thái ứng dụng: Khắc phục triệt để việc reset bản đồ khi chuyển tab.
-10. **[DONE]** Tính năng **Xoá nhiều đơn hàng (Batch Delete)** cùng lúc với xác nhận popup.
-11. **[DONE]** Nâng cấp **Excel Template** với các địa chỉ mẫu HCMC cách nhau ~10km để test route thực tế.
-12. **[DONE]** **Dark Mode** — Chế độ tối hiện đại cho toàn bộ hệ thống (Frontend).
-13. **[DONE]** **Cấu hình Lộ trình Thực tế** — Tinh chỉnh kẹt xe & thời gian dừng giao (Random 1.5 - 2.0).
-14. **[TODO]** Tích hợp SMS (Zalo OA / Twilio / ESMS) — gửi tin nhắn tự động khi đổi trạng thái.
-15. **[TODO]** Mở rộng hệ thống Tự động gom nhóm (Auto-cluster) Đơn hàng theo lô/khu vực.
-16. **[TODO]** Dashboard Report (Chart.js): Biểu đồ tổng kết số đơn hoàn thành theo ngày.
-16. **[TODO]** Triển khai (Deployment): Đóng gói Docker và đưa hệ thống lên Cloud.
-17. **[TODO]** PWA (Progressive Web App) — Cài đặt app mobile (Sau khi Deploy).
-18. **[TODO]** Proof of Delivery — Chụp ảnh & Ký nhận điện tử (Sau khi Deploy).
-19. **[TODO]** Navigation Deep Link — Nút mở Google Maps/Waze chỉ đường (Sau khi Deploy).
+Roadmap này ưu tiên hướng **dispatcher-first**: làm RouteFlow trở thành công cụ điều phối và tối ưu giao hàng đáng tin cậy trước, rồi mới mở rộng mạnh sang trải nghiệm shipper ngoài thực địa. Mục tiêu là tránh lan man vào các tính năng nhìn đẹp nhưng chưa tăng giá trị lõi.
+
+### ✅ Nền tảng đã có
+
+- **[DONE]** Cập nhật trạng thái đơn hàng trực tiếp trên bảng.
+- **[DONE]** Forward từ danh sách đơn sang bản đồ để xem nhanh vị trí.
+- **[DONE]** CRUD đơn hàng có thêm Phone + Email.
+- **[DONE]** Email notification qua Gmail SMTP khi đơn chuyển sang Delivered.
+- **[DONE]** Fix UX badge trạng thái để thao tác mượt hơn.
+- **[DONE]** Hiển thị và lưu đúng trường Phone trên UI.
+- **[DONE]** Marker cải tiến: điểm bắt đầu nổi bật, đánh số thứ tự toàn tuyến.
+- **[DONE]** Click chặng đường để xem chi tiết và cập nhật "Giao thành công" ngay trên map.
+- **[DONE]** Duy trì trạng thái ứng dụng khi chuyển tab.
+- **[DONE]** Xoá nhiều đơn hàng cùng lúc.
+- **[DONE]** Excel template mẫu để test route thực tế tại HCMC.
+- **[DONE]** Dark Mode cho frontend.
+- **[DONE]** Cấu hình route thực tế với traffic multiplier và service time.
+
+### Tháng 1: Ổn định lõi vận hành route
+
+**Mục tiêu**
+- Biến luồng "nhập đơn -> ra route -> đi giao -> cập nhật trạng thái" thành luồng dùng được hằng ngày mà không vỡ khi gặp dữ liệu xấu hoặc API ngoài lỗi.
+
+**Ưu tiên triển khai**
+- **[TODO]** Navigation Deep Link: mở nhanh Google Maps/Waze từ từng điểm giao hoặc chặng tiếp theo.
+- **[TODO]** Route/Geocode Reliability: bổ sung trạng thái lỗi rõ ràng khi Nominatim hoặc OSRM thất bại, tránh UI im lặng hoặc route sai mà user không biết.
+- **[TODO]** Retry/Caching cơ bản cho geocoding background job để giảm gọi lặp và tăng độ ổn định.
+- **[TODO]** Chuẩn hoá trạng thái đơn hàng theo luồng giao thực tế: Pending -> InProgress -> Delivered -> Failed/Skipped.
+- **[TODO]** Deployment baseline: hoàn thiện cấu hình môi trường, connection string SQL Server, Docker hoá backend/frontend ở mức đủ chạy ổn trên môi trường test.
+
+**Tiêu chí hoàn thành**
+- User có thể import đơn, tối ưu tuyến, mở app dẫn đường ngoài thực địa và quay lại cập nhật trạng thái mà không phải nhập tay lại.
+- Khi geocode/route lỗi, hệ thống báo rõ đơn nào lỗi và lý do ở mức user hiểu được.
+- Có môi trường test/deploy nội bộ chạy được ổn định, không còn phụ thuộc hoàn toàn vào máy dev.
+
+**Không ưu tiên trong tháng 1**
+- SMS.
+- Dashboard biểu đồ.
+- PWA.
+- Realtime tracking.
+
+### Tháng 2: Từ route đơn sang điều phối nhiều cụm
+
+**Mục tiêu**
+- Nâng RouteFlow từ công cụ tối ưu một tuyến sang công cụ hỗ trợ điều phối nhiều đơn theo khu vực/lô hợp lý.
+
+**Ưu tiên triển khai**
+- **[TODO]** Auto-Cluster cơ bản: gom nhóm đơn theo khu vực để chia lô giao hàng trước khi tối ưu từng cụm.
+- **[TODO]** Multi-Vehicle Routing bản pragmatic: chưa cần solver tối ưu toàn cục, ưu tiên flow "cluster trước, gán cụm cho shipper sau, tối ưu từng cụm riêng".
+- **[TODO]** Màn hình điều phối tối thiểu: xem mỗi cụm có bao nhiêu đơn, ước lượng quãng đường/thời gian, ai đang phụ trách.
+- **[TODO]** Nhật ký thay đổi trạng thái và các lỗi route/geocode để điều phối viên tra soát.
+- **[TODO]** Dashboard vận hành tối thiểu: số đơn Pending/InProgress/Delivered/Failed trong ngày, không làm chart màu mè nếu chưa phục vụ quyết định vận hành.
+
+**Tiêu chí hoàn thành**
+- Điều phối viên có thể chia một batch đơn thành nhiều cụm hợp lý thay vì chỉ có một tuyến duy nhất.
+- Có thể gán cụm cho nhiều shipper ở mức thao tác được.
+- Có số liệu tối thiểu để biết hôm nay còn bao nhiêu đơn và cụm nào đang gặp vấn đề.
+
+**Không ưu tiên trong tháng 2**
+- SMS marketing/notification mở rộng.
+- Nâng cấp giao diện chỉ để đẹp hơn.
+- Các tính năng mobile-first chưa gắn với luồng điều phối.
+
+### Tháng 3: Khép vòng thực địa
+
+**Mục tiêu**
+- Nối phần điều phối với phần thực thi ngoài hiện trường, để RouteFlow không chỉ dừng ở tối ưu route mà còn hỗ trợ hoàn tất giao hàng.
+
+**Ưu tiên triển khai**
+- **[TODO]** Proof of Delivery bản nhẹ: chụp ảnh xác nhận giao hàng và ghi nhận thời điểm hoàn tất.
+- **[TODO]** Chữ ký điện tử hoặc xác nhận người nhận ở mức tối giản nếu phù hợp luồng hiện tại.
+- **[TODO]** PWA cơ bản cho shipper sau khi luồng web mobile đã ổn định.
+- **[TODO]** Realtime Tracking bản tối thiểu: cập nhật vị trí shipper theo chu kỳ cho mục đích theo dõi tiến độ, không cố giải bài toán live map quá sớm.
+- **[TODO]** Tối ưu lại UX shipper trên mobile cho các tác vụ chính: xem điểm tiếp theo, mở navigation, đánh dấu giao thành công/thất bại, chụp POD.
+
+**Tiêu chí hoàn thành**
+- RouteFlow hỗ trợ được cả 2 nửa của bài toán: điều phối trong hệ thống và xác nhận giao hàng ngoài thực địa.
+- Một shipper có thể dùng điện thoại để đi trọn vòng thao tác chính mà không cần quay lại desktop giữa chừng.
+
+**Không ưu tiên trong tháng 3**
+- SMS nếu chưa có use case vận hành thật sự rõ.
+- Dashboard nâng cao thiên về trình diễn.
+- Mở rộng sang bài toán logistics enterprise như tối ưu toàn cục nhiều ràng buộc phức tạp khi chưa validate xong luồng hiện tại.
+
+### Các việc chủ động hoãn sau 3 tháng
+
+- **[DEFERRED]** SMS (Zalo OA / Twilio / ESMS): chỉ làm khi đã chứng minh có nhu cầu thật và có người chịu chi phí vận hành.
+- **[DEFERRED]** Dashboard analytics nâng cao: chỉ mở rộng khi dữ liệu vận hành đủ sạch và có câu hỏi quản trị rõ ràng cần trả lời.
+- **[DEFERRED]** VRP tối ưu toàn cục nhiều ràng buộc: chỉ nên làm sau khi cluster + multi-shipper bản pragmatic đã chứng minh giá trị.
 
 ---
 

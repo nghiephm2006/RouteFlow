@@ -88,9 +88,9 @@ Dự án RouteFlow giải quyết bài toán Quản lý & Tối ưu tuyến đư
 ### Trạng thái deploy hiện tại
 - Azure resource group: `routeflow-rg`
 - Azure VM: `routeflow-vm`
-- Public frontend: `Azure VM deployment (endpoint omitted)`
-- Public backend health: `Azure VM deployment (endpoint omitted)`
-- Public Swagger: `Azure VM deployment (endpoint omitted)`
+- Public frontend: deployed on Azure VM (public IP intentionally omitted from docs).
+- Public backend health: available on the same Azure VM deployment.
+- Public Swagger: available on the same Azure VM deployment when enabled.
 - Trạng thái hiện tại là demo/test running state, chưa có domain và HTTPS.
 
 ### Tháng 2: Điều phối nhiều cụm

@@ -128,9 +128,9 @@ Sau khi chạy:
 ### Trạng thái Deploy hiện tại
 
 - **[DONE]** Bản deploy đầu tiên đang chạy trên **Azure VM**.
-- Frontend public: `Azure VM deployment (endpoint omitted)`
-- Backend health: `Azure VM deployment (endpoint omitted)`
-- Swagger: `Azure VM deployment (endpoint omitted)`
+- Frontend public: deployed on Azure VM (public IP intentionally omitted from docs).
+- Backend health: available on the same Azure VM deployment.
+- Swagger: available on the same Azure VM deployment when enabled.
 - Mô hình hiện tại: 1 Ubuntu VM chạy Docker với 3 container `frontend + backend + postgres`.
 - Trạng thái này phù hợp để demo/test nội bộ, chưa phải production-ready hoàn chỉnh vì chưa có domain và HTTPS.
 

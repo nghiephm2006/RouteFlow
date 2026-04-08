@@ -70,6 +70,8 @@ Repo da co san workflow de chuyen sang huong tiet kiem chi phi:
 
 Chi tiet setup secrets va rollout: `DEPLOYMENT_GITHUB_ACTIONS_VERCEL.md`
 
+Luu y: Vercel chi dung de deploy frontend. Backend .NET nen deploy tren provider phu hop (Render/Railway/Fly...) va duoc trigger qua deploy hook.
+
 ## Những gì đã có
 
 ### Frontend

@@ -63,7 +63,10 @@ Không ưu tiên:
 ### Deploy
 
 - Docker
-- Azure VM
+- Azure VM (legacy, cần giảm phụ thuộc để tối ưu chi phí)
+- GitHub Actions cho CI/CD
+- Vercel cho frontend
+- Backend deploy bằng deploy hook (Render/Railway/Fly) + database managed
 
 ## Trạng thái hệ thống hiện tại
 
@@ -110,6 +113,8 @@ Không ưu tiên:
 - Đã dọn secret khỏi `HEAD`
 - Đã rewrite git history để xóa secret cũ
 - Đã gỡ public IP khỏi docs
+- Đã thêm workflow CI/CD bằng GitHub Actions và cấu hình deploy frontend qua Vercel
+- Đã có cấu hình proxy API frontend sang backend production qua `vercel.json`
 
 ## Những gì đang thiếu
 
@@ -182,3 +187,4 @@ Không ưu tiên:
   - `Next 3 Actions`
 - Không `commit push` nếu context chưa được cập nhật đúng
 - Nếu có thay đổi ảnh hưởng product, architecture, deploy, security hoặc roadmap, phải sync lại `README.md` và `AI_CONTEXT.md`
+- Với strategy deploy mới: luôn nhắc rõ Vercel chỉ deploy frontend; backend dùng provider phù hợp cho .NET API

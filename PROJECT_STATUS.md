@@ -2,7 +2,7 @@
 
 Mục tiêu: đây là file trạng thái trung tâm, cần đọc đầu tiên trước khi tiếp tục làm việc với RouteFlow.
 
-Cập nhật lần cuối: 2026-03-31
+Cập nhật lần cuối: 2026-04-08
 
 ## Đã làm
 
@@ -16,18 +16,34 @@ Cập nhật lần cuối: 2026-03-31
 - Đã tạo `WORKFLOW_RULES.md` để chuẩn hóa cách đọc và cập nhật context file.
 - Đã viết lại `README.md` và `AI_CONTEXT.md` theo vai trò rõ ràng hơn.
 - Đã chuẩn hóa `PROJECT_STATUS.md`, `COMMIT_PUSH_CONTEXT.md`, `SECURITY_TODO.md` về UTF-8 không BOM và kiểm tra lại tiếng Việt.
+- Đã thêm bộ GitHub Actions CI/CD:
+  - CI build frontend Angular + backend .NET 10
+  - CD frontend lên Vercel
+  - CD backend qua deploy hook
+- Đã thêm `shipper-route-optimization/vercel.json` để:
+  - fallback SPA về `index.html`
+  - proxy `/api/*` và `/health` sang backend Render
+- Đã thêm tài liệu triển khai `DEPLOYMENT_GITHUB_ACTIONS_VERCEL.md`.
 
 ## Đang làm
 
-- Giữ RouteFlow đi đúng hướng dispatcher-first.
-- Chốt lại roadmap theo flow: Order -> Cluster -> Route -> Deliver -> Confirm.
-- Tiếp tục siết ranh giới vai trò giữa các file docs để tránh chồng chéo lâu dài.
+- Chuyển hạ tầng deploy từ Azure VM sang mô hình chi phí thấp:
+  - frontend trên Vercel
+  - backend + database trên provider rẻ/free tier
+  - orchestration bằng GitHub Actions
+- Chốt checklist cutover production và xác nhận pipeline chạy ổn định sau push.
 
 ## Vướng
 
 - Gmail app password cũ đã bị lộ trong quá khứ, cần rotate thủ công trong tài khoản Google.
 - Hệ thống vẫn còn quá order-centric, chưa có Route aggregate đúng nghĩa.
 - Chưa có Cluster domain rõ ràng, nên chưa nên đẩy sang Phase 2.
+- Secrets production cho CI/CD phải do owner cấu hình trên GitHub:
+  - `VERCEL_TOKEN`
+  - `VERCEL_ORG_ID`
+  - `VERCEL_PROJECT_ID`
+  - `BACKEND_DEPLOY_HOOK_URL`
+- Một số secret đã từng được paste ở môi trường chat, cần rotate ngay trước khi push production.
 
 ## Phase hiện tại
 
@@ -42,6 +58,10 @@ Lý do:
 
 ### Ưu tiên cao
 
+- [ ] Rotate ngay `VERCEL_TOKEN` và regenerate Render deploy hook key mới
+- [ ] Cấu hình đầy đủ GitHub Actions secrets cho pipeline mới
+- [ ] Push `main` và xác nhận 3 workflow chạy xanh (CI, frontend deploy, backend deploy hook)
+- [ ] Xác nhận route API production qua `https://routeflow.onrender.com`
 - [ ] Chốt state machine cho Order và Route
 - [ ] Tạo Route aggregate ở backend
 - [ ] Tách Cluster thành domain/service rõ ràng
@@ -57,13 +77,13 @@ Lý do:
 ### Ưu tiên thấp
 
 - [ ] Rà lại chồng chéo giữa README.md, AI_CONTEXT.md và PROJECT_STATUS.md sau đợt cleanup docs
-- [ ] Đánh giá lại deploy strategy trước khi public demo lại
+- [ ] Decommission Azure resources không còn dùng để tránh phát sinh chi phí
 
 ## Next 3 Actions
 
-1. Chốt state machine cho Order và Route.
-2. Thiết kế Route aggregate và boundary của Cluster.
-3. Làm route/geocode reliability trước khi thêm feature mới.
+1. Rotate toàn bộ secret đã lộ (Vercel token, Render deploy hook) và cập nhật lại GitHub secrets.
+2. Push `main`, theo dõi 3 workflow GitHub Actions đến khi xanh hoàn toàn.
+3. Sau khi deploy ổn định, quay lại ưu tiên domain: state machine `Order/Route` và `Route` aggregate.
 
 ## Quy tắc
 

@@ -1,0 +1,28 @@
+name: Deploy Backend (Deploy Hook)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "RouteFlow.Backend/**"
+      - "docker-compose.yml"
+      - ".github/workflows/deploy-backend-hook.yml"
+
+jobs:
+  trigger-deploy:
+    name: Trigger backend deploy hook
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call backend deploy hook
+        env:
+          BACKEND_DEPLOY_HOOK_URL: ${{ secrets.BACKEND_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$BACKEND_DEPLOY_HOOK_URL" ]; then
+            echo "BACKEND_DEPLOY_HOOK_URL is not configured."
+            exit 1
+          fi
+
+          curl --fail --silent --show-error --request POST "$BACKEND_DEPLOY_HOOK_URL"
+          echo "Backend deploy hook triggered successfully."

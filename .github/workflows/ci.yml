@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+jobs:
+  frontend-build:
+    name: Frontend Build (Angular)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: shipper-route-optimization
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: shipper-route-optimization/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+  backend-build:
+    name: Backend Build (.NET 10)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore RouteFlow.Backend/RouteFlow.Api/RouteFlow.Api.csproj
+
+      - name: Build backend
+        run: dotnet build RouteFlow.Backend/RouteFlow.Api/RouteFlow.Api.csproj --configuration Release --no-restore

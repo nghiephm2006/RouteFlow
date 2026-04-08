@@ -60,6 +60,16 @@ Dự án hiện có 2 phần chính:
 - Docker
 - Azure VM
 
+## CI/CD (GitHub Actions + Vercel)
+
+Repo da co san workflow de chuyen sang huong tiet kiem chi phi:
+
+- CI build frontend + backend: `.github/workflows/ci.yml`
+- CD frontend len Vercel: `.github/workflows/deploy-frontend-vercel.yml`
+- CD backend qua deploy hook: `.github/workflows/deploy-backend-hook.yml`
+
+Chi tiet setup secrets va rollout: `DEPLOYMENT_GITHUB_ACTIONS_VERCEL.md`
+
 ## Những gì đã có
 
 ### Frontend

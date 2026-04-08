@@ -1,0 +1,19 @@
+{
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://routeflow.onrender.com/api/$1"
+    },
+    {
+      "src": "/health",
+      "dest": "https://routeflow.onrender.com/health"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}

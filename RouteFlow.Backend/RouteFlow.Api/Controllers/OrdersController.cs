@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RouteFlow.Application.Features.Orders.Commands;
@@ -10,6 +11,7 @@ using RouteFlow.Application.Features.Orders.Queries;
 namespace RouteFlow.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class OrdersController : ControllerBase
     {

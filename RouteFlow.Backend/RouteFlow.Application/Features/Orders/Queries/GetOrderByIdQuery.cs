@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -12,10 +13,14 @@ namespace RouteFlow.Application.Features.Orders.Queries
     public class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, OrderDto?>
     {
         private readonly IOrderRepository _repository;
+        private readonly IOrderStatusHistoryRepository _orderStatusHistoryRepository;
 
-        public GetOrderByIdQueryHandler(IOrderRepository repository)
+        public GetOrderByIdQueryHandler(
+            IOrderRepository repository,
+            IOrderStatusHistoryRepository orderStatusHistoryRepository)
         {
             _repository = repository;
+            _orderStatusHistoryRepository = orderStatusHistoryRepository;
         }
 
         public async Task<OrderDto?> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
@@ -23,6 +28,8 @@ namespace RouteFlow.Application.Features.Orders.Queries
             var order = await _repository.GetByIdAsync(request.Id);
             
             if (order == null) return null;
+
+            var histories = await _orderStatusHistoryRepository.GetByOrderIdAsync(order.Id);
 
             return new OrderDto
             {
@@ -36,7 +43,16 @@ namespace RouteFlow.Application.Features.Orders.Queries
                 Longitude = order.Longitude,
                 Note = order.Note,
                 Status = order.Status,
-                CreatedAt = order.CreatedAt
+                CreatedAt = order.CreatedAt,
+                StatusHistory = histories.Select(x => new OrderStatusHistoryDto
+                {
+                    Id = x.Id,
+                    FromStatus = x.FromStatus,
+                    ToStatus = x.ToStatus,
+                    ChangedByUserId = x.ChangedByUserId,
+                    Reason = x.Reason,
+                    ChangedAt = x.ChangedAt
+                }).ToList()
             };
         }
     }

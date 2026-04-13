@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RouteFlow.Application.Features.Orders.Commands;
@@ -8,6 +9,7 @@ using RouteFlow.Application.Interfaces;
 namespace RouteFlow.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/orders")]
     public class ImportController : ControllerBase
     {

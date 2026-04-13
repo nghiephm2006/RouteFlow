@@ -31,11 +31,16 @@ namespace RouteFlow.Application.Features.Orders.Commands
     public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Guid>
     {
         private readonly IOrderRepository _repository;
+        private readonly IOrderStatusHistoryRepository _orderStatusHistoryRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public CreateOrderCommandHandler(IOrderRepository repository, IUnitOfWork unitOfWork)
+        public CreateOrderCommandHandler(
+            IOrderRepository repository,
+            IOrderStatusHistoryRepository orderStatusHistoryRepository,
+            IUnitOfWork unitOfWork)
         {
             _repository = repository;
+            _orderStatusHistoryRepository = orderStatusHistoryRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -52,6 +57,12 @@ namespace RouteFlow.Application.Features.Orders.Commands
             );
 
             await _repository.AddAsync(order);
+            await _orderStatusHistoryRepository.AddAsync(OrderStatusHistory.Create(
+                order.Id,
+                null,
+                order.Status,
+                null,
+                "Order created"));
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return order.Id;

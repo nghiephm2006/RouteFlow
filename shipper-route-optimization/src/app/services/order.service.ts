@@ -21,7 +21,8 @@ export enum OrderStatus {
   Pending = 0,
   Routing = 1,
   Assigned = 2,
-  Delivered = 3
+  Delivered = 3,
+  Cancelled = 4
 }
 
 export interface OrderStats {

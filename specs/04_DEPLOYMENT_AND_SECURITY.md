@@ -11,8 +11,8 @@
 
 ### Local
 
-- frontend: `npm run start` tại `http://localhost:4200`
-- backend: `dotnet run` tại `https://localhost:7141`
+- frontend: `npm run start` tai `http://localhost:4200`
+- backend: `dotnet run` tai `https://localhost:7141`
 - docker compose:
   - frontend: `http://localhost:8080`
   - backend: `http://localhost:8081`
@@ -27,14 +27,24 @@
 
 Rule:
 
-- Vercel chỉ deploy frontend.
-- Backend .NET phải chạy trên provider phù hợp và được gọi qua deploy hook hoặc workflow tương đương.
+- Vercel chi deploy frontend.
+- Backend .NET phai chay tren provider phu hop va duoc goi qua deploy hook hoac workflow tuong duong.
 
 ## Configuration Rules
 
-- `ConnectionStrings__DefaultConnection` phải lấy từ environment variables hoặc user secrets
-- `appsettings.json` chỉ chứa placeholder, không chứa secret thật
-- nếu dùng SMTP, cấu hình:
+- `ConnectionStrings__DefaultConnection` phai lay tu environment variables hoac user secrets
+- `appsettings.json` chi chua placeholder, khong chua secret that
+- auth JWT phai cau hinh qua:
+  - `Auth__Jwt__Issuer`
+  - `Auth__Jwt__Audience`
+  - `Auth__Jwt__SigningKey`
+  - `Auth__Jwt__AccessTokenMinutes`
+- bootstrap admin co the cau hinh qua:
+  - `Auth__BootstrapAdmin__Email`
+  - `Auth__BootstrapAdmin__Password`
+  - `Auth__BootstrapAdmin__FullName`
+  - `Auth__BootstrapAdmin__UserName`
+- neu dung SMTP, cau hinh:
   - `SmtpSettings__Host`
   - `SmtpSettings__Port`
   - `SmtpSettings__Username`
@@ -45,22 +55,24 @@ Rule:
 
 ### P0
 
-- rotate ngay Gmail SMTP app password cũ nếu chưa rotate
-- rotate ngay `VERCEL_TOKEN` nếu đã từng lộ ở chat/screen share
-- regenerate Render deploy hook key cũ và cập nhật lại `BACKEND_DEPLOY_HOOK_URL`
-- rotate ngay Neon database password nếu đã từng lộ
-- sau khi rotate, cập nhật lại toàn bộ secrets tương ứng trên GitHub Actions
-- nếu hạ tầng Azure không còn dùng, stop/delete để tránh tốn credit
+- rotate ngay Gmail SMTP app password cu neu chua rotate
+- rotate ngay `VERCEL_TOKEN` neu da tung lo o chat/screen share
+- regenerate Render deploy hook key cu va cap nhat lai `BACKEND_DEPLOY_HOOK_URL`
+- rotate ngay Neon database password neu da tung lo
+- sau khi rotate, cap nhat lai toan bo secrets tuong ung tren GitHub Actions
+- neu ha tang Azure khong con dung, stop/delete de tranh ton credit
+- khong dung JWT signing key placeholder tren production
 
 ### P1
 
-- rà lại Azure VM, NSG và container ports để chắc PostgreSQL không public
-- cân nhắc gỡ public IP khỏi docs nếu repo public hoặc demo rộng hơn
-- kiểm tra CORS production chỉ cho phép frontend domain chính thức
-- tắt Swagger public trên production (`Features__EnableSwagger=false`) nếu không cần
+- ra lai Azure VM, NSG va container ports de chac PostgreSQL khong public
+- can nhac go public IP khoi docs neu repo public hoa hoac demo rong hon
+- kiem tra CORS production chi cho phep frontend domain chinh thuc
+- tat Swagger public tren production (`Features__EnableSwagger=false`) neu khong can
+- bootstrap admin endpoint chi nen usable khi he thong chua co user dau tien
 
 ## Security Notes
 
-- Xóa secret khỏi HEAD không có nghĩa là secret đã an toàn; git history cũ mới là điểm rủi ro thật.
-- Secret paste trong chat hoặc screen share phải được coi như đã lộ.
-- Deploy thành công không đồng nghĩa cấu hình production đã an toàn.
+- xoa secret khoi HEAD khong co nghia la secret da an toan; git history cu moi la diem rui ro that
+- secret paste trong chat hoac screen share phai duoc coi nhu da lo
+- deploy thanh cong khong dong nghia cau hinh production da an toan

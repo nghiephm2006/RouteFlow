@@ -13,16 +13,23 @@ namespace RouteFlow.Application.Features.Orders.Queries
     public class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, IEnumerable<OrderDto>>
     {
         private readonly IOrderRepository _repository;
+        private readonly IOrderStatusHistoryRepository _orderStatusHistoryRepository;
 
-        public GetOrdersQueryHandler(IOrderRepository repository)
+        public GetOrdersQueryHandler(
+            IOrderRepository repository,
+            IOrderStatusHistoryRepository orderStatusHistoryRepository)
         {
             _repository = repository;
+            _orderStatusHistoryRepository = orderStatusHistoryRepository;
         }
 
         public async Task<IEnumerable<OrderDto>> Handle(GetOrdersQuery request, CancellationToken cancellationToken)
         {
             var orders = await _repository.GetAllAsync();
-            return orders.Select(o => new OrderDto
+            var orderList = orders.ToList();
+            var historyMap = await LoadHistoryMapAsync(orderList.Select(o => o.Id));
+
+            return orderList.Select(o => new OrderDto
             {
                 Id = o.Id,
                 OrderCode = o.OrderCode,
@@ -34,8 +41,32 @@ namespace RouteFlow.Application.Features.Orders.Queries
                 Longitude = o.Longitude,
                 Note = o.Note,
                 Status = o.Status,
-                CreatedAt = o.CreatedAt
+                CreatedAt = o.CreatedAt,
+                StatusHistory = historyMap.TryGetValue(o.Id, out var history)
+                    ? history
+                    : []
             });
+        }
+
+        private async Task<Dictionary<Guid, List<OrderStatusHistoryDto>>> LoadHistoryMapAsync(IEnumerable<Guid> orderIds)
+        {
+            var map = new Dictionary<Guid, List<OrderStatusHistoryDto>>();
+
+            foreach (var orderId in orderIds)
+            {
+                var histories = await _orderStatusHistoryRepository.GetByOrderIdAsync(orderId);
+                map[orderId] = histories.Select(x => new OrderStatusHistoryDto
+                {
+                    Id = x.Id,
+                    FromStatus = x.FromStatus,
+                    ToStatus = x.ToStatus,
+                    ChangedByUserId = x.ChangedByUserId,
+                    Reason = x.Reason,
+                    ChangedAt = x.ChangedAt
+                }).ToList();
+            }
+
+            return map;
         }
     }
 }

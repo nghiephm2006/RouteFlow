@@ -3,17 +3,26 @@ import { CommonModule } from '@angular/common';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { MapComponent } from './components/map/map.component';
 import { OrdersComponent } from './components/orders/orders.component';
+import { AuthScreenComponent } from './components/auth-screen/auth-screen.component';
 import { RouteOptimizationService } from './services/route-optimization.service';
 import { Point, OptimizedRoute } from './models/route.model';
 import { Order, OrderService, OrderStatus } from './services/order.service';
 import { ThemeService } from './services/theme.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, MapComponent, OrdersComponent], // force LS refresh
+  imports: [CommonModule, SidebarComponent, MapComponent, OrdersComponent, AuthScreenComponent], // force LS refresh
   template: `
+    <app-auth-screen
+      *ngIf="!authService.isAuthenticated()"
+      [canBootstrapAdmin]="authService.canBootstrapAdmin()"
+      (authenticated)="onAuthenticated()">
+    </app-auth-screen>
+
     <div class="h-screen w-screen flex flex-col bg-gray-50 dark:bg-gray-900 font-sans overflow-hidden cursor-default text-gray-800 dark:text-gray-100 transition-colors duration-300">
+      <ng-container *ngIf="authService.isAuthenticated()">
       <!-- Main Top Navigation -->
       <div class="h-16 bg-[#1A365D] dark:bg-[#0f172a] text-white shadow-xl z-30 flex items-center justify-between px-6 flex-shrink-0 transition-colors duration-300">
         <div class="flex items-center gap-3">
@@ -49,6 +58,19 @@ import { ThemeService } from './services/theme.service';
           </div>
 
           <div class="flex items-center gap-2">
+            <div class="hidden lg:flex items-center gap-3 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs">
+              <div>
+                <p class="font-semibold text-white">{{ authService.session()?.user?.fullName }}</p>
+                <p class="text-blue-200">{{ authService.session()?.user?.roles?.join(' / ') }}</p>
+              </div>
+              <button
+                type="button"
+                (click)="logout()"
+                class="rounded-full border border-white/20 px-3 py-1 font-semibold text-white transition hover:bg-white/10">
+                Logout
+              </button>
+            </div>
+
             <!-- Config Toggle Button -->
             <button (click)="toggleSidebarConfig()" 
                     class="p-2 rounded-full bg-[#0f2342] dark:bg-[#1e293b] text-white hover:bg-[#1a365d] transition-colors duration-300 shadow-md flex items-center justify-center border border-blue-400/20"
@@ -91,6 +113,7 @@ import { ThemeService } from './services/theme.service';
            <app-orders (routePendingOrders)="onRoutePendingOrders($event)" (forwardToMap)="onForwardToMap($event)"></app-orders>
         </div>
       </div>
+      </ng-container>
     </div>
   `,
   styles: [`
@@ -118,8 +141,21 @@ export class App {
     private routeService: RouteOptimizationService,
     private orderService: OrderService,
     private cdr: ChangeDetectorRef,
-    public themeService: ThemeService
+    public themeService: ThemeService,
+    public authService: AuthService
   ) {}
+
+  onAuthenticated() {
+    this.authService.loadProfile().subscribe();
+  }
+
+  logout() {
+    this.routeData = null;
+    this.selectedPoint = null;
+    this.pointsFromOrders = [];
+    this.authService.logout();
+    this.authService.refreshBootstrapStatus().subscribe();
+  }
 
   onUserLocationReady(location: { lat: number, lng: number }) {
     this.currentUserLocation = location;

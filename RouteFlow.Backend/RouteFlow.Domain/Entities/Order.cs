@@ -58,12 +58,12 @@ namespace RouteFlow.Domain.Entities
 
         public void Assign()
         {
-            Status = OrderStatus.Assigned;
+            UpdateStatus(OrderStatus.Assigned);
         }
 
         public void MarkAsDelivered()
         {
-            Status = OrderStatus.Delivered;
+            UpdateStatus(OrderStatus.Delivered);
         }
 
         public void UpdateLocation(double latitude, double longitude)
@@ -85,7 +85,30 @@ namespace RouteFlow.Domain.Entities
 
         public void UpdateStatus(OrderStatus newStatus)
         {
+            if (Status == newStatus)
+            {
+                return;
+            }
+
+            if (!CanTransitionTo(newStatus))
+            {
+                throw new ApplicationException($"Invalid order status transition: {Status} -> {newStatus}.");
+            }
+
             Status = newStatus;
+        }
+
+        private bool CanTransitionTo(OrderStatus newStatus)
+        {
+            return Status switch
+            {
+                OrderStatus.Pending => newStatus is OrderStatus.Routing or OrderStatus.Cancelled,
+                OrderStatus.Routing => newStatus is OrderStatus.Assigned or OrderStatus.Cancelled,
+                OrderStatus.Assigned => newStatus is OrderStatus.Delivered or OrderStatus.Routing,
+                OrderStatus.Delivered => false,
+                OrderStatus.Cancelled => false,
+                _ => false
+            };
         }
     }
 }

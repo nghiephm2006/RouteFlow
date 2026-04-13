@@ -85,7 +85,93 @@ Unexpected error:
 - frontend không được assume mọi lỗi đều có `errors`
 - validation failure mới có dictionary `errors`
 
+## Auth API
+
+### `GET /api/auth/bootstrap-status`
+
+Purpose:
+
+- kiểm tra hệ thống còn cho phép tạo admin đầu tiên hay không
+
+Response:
+
+```json
+{
+  "canBootstrapAdmin": true
+}
+```
+
+### `POST /api/auth/bootstrap-admin`
+
+Purpose:
+
+- tạo admin đầu tiên khi hệ thống chưa có user nào
+
+Request body:
+
+```json
+{
+  "email": "admin@example.com",
+  "password": "StrongPass123",
+  "fullName": "RouteFlow Admin",
+  "userName": "admin"
+}
+```
+
+Response:
+
+- `200 OK` với `AuthResponse`
+- `409 Conflict` nếu hệ thống đã có user
+
+### `POST /api/auth/login`
+
+Request body:
+
+```json
+{
+  "email": "admin@example.com",
+  "password": "StrongPass123"
+}
+```
+
+Response shape:
+
+```json
+{
+  "accessToken": "jwt-token",
+  "expiresAtUtc": "2026-04-13T00:00:00Z",
+  "user": {
+    "id": "guid",
+    "email": "admin@example.com",
+    "userName": "admin",
+    "fullName": "RouteFlow Admin",
+    "roles": ["Admin", "Dispatcher"]
+  }
+}
+```
+
+### `GET /api/auth/me`
+
+Auth:
+
+- yêu cầu bearer token
+
+Response:
+
+- user profile hiện tại
+
+### `POST /api/auth/logout`
+
+Current behavior:
+
+- backend trả `204`
+- session invalidation hiện đang là concern phía client
+
 ## Orders API
+
+Auth:
+
+- toàn bộ `Orders`, `Import`, `Routes` endpoints hiện yêu cầu bearer token
 
 ### `POST /api/orders`
 

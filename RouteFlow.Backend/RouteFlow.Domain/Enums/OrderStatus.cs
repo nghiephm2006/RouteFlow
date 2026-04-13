@@ -5,6 +5,7 @@ namespace RouteFlow.Domain.Enums
         Pending,
         Routing,
         Assigned,
-        Delivered
+        Delivered,
+        Cancelled
     }
 }

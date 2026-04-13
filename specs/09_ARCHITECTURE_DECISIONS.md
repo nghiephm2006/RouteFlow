@@ -205,3 +205,28 @@ File này ghi lại các quyết định kiến trúc quan trọng để:
 
 - tăng overhead vận hành
 - nhưng đây là giá phải trả để production không tự tạo rủi ro vô nghĩa
+
+## ADR-010: Auth foundation dùng ASP.NET Core Identity + JWT
+
+### Status
+
+- Accepted
+
+### Context
+
+- app đã public qua Vercel/Render
+- hệ thống trước đó chưa có login, các API chính chưa có user boundary
+- cần slice auth đủ thực dụng để khóa workspace trước khi mở rộng multi-user flow
+
+### Decision
+
+- dùng ASP.NET Core Identity cho `User/Role`
+- dùng JWT bearer cho API access
+- dùng bootstrap admin cho lần khởi tạo đầu tiên
+- frontend giữ token phía client và gửi bearer token qua interceptor
+
+### Consequence
+
+- thêm schema auth vào DB
+- cần migration/schema update thật trên môi trường có .NET 10 SDK
+- role-based permission có nền tảng để mở rộng nhưng chưa phải RBAC hoàn chỉnh

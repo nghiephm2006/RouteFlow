@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RouteFlow.Domain.Enums;
 
 namespace RouteFlow.Application.DTOs
@@ -16,5 +17,6 @@ namespace RouteFlow.Application.DTOs
         public string Note { get; set; } = string.Empty;
         public OrderStatus Status { get; set; }
         public DateTime CreatedAt { get; set; }
+        public List<OrderStatusHistoryDto> StatusHistory { get; set; } = [];
     }
 }

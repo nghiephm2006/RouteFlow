@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using RouteFlow.Application.Interfaces;
+using RouteFlow.Domain.Entities;
 using RouteFlow.Domain.Enums;
 using RouteFlow.Domain.Interfaces;
 
@@ -25,17 +26,23 @@ namespace RouteFlow.Application.Features.Orders.Commands
     public class UpdateOrderStatusCommandHandler : IRequestHandler<UpdateOrderStatusCommand, bool>
     {
         private readonly IOrderRepository _repository;
+        private readonly IOrderStatusHistoryRepository _orderStatusHistoryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
+        private readonly ICurrentUserService _currentUserService;
 
         public UpdateOrderStatusCommandHandler(
             IOrderRepository repository,
+            IOrderStatusHistoryRepository orderStatusHistoryRepository,
             IUnitOfWork unitOfWork,
-            IEmailService emailService)
+            IEmailService emailService,
+            ICurrentUserService currentUserService)
         {
             _repository = repository;
+            _orderStatusHistoryRepository = orderStatusHistoryRepository;
             _unitOfWork = unitOfWork;
             _emailService = emailService;
+            _currentUserService = currentUserService;
         }
 
         public async Task<bool> Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
@@ -43,9 +50,16 @@ namespace RouteFlow.Application.Features.Orders.Commands
             var order = await _repository.GetByIdAsync(request.Id);
             if (order == null) return false;
 
+            var previousStatus = order.Status;
             order.UpdateStatus(request.NewStatus);
 
             _repository.Update(order);
+            await _orderStatusHistoryRepository.AddAsync(OrderStatusHistory.Create(
+                order.Id,
+                previousStatus,
+                request.NewStatus,
+                _currentUserService.UserId,
+                "Status updated via API"));
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             // Send email notification if customer has an email

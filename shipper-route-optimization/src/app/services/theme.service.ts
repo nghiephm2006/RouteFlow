@@ -22,8 +22,8 @@ export class ThemeService {
     if (savedTheme) {
       return savedTheme === 'dark';
     }
-    // Check system preference if no saved theme
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // Default to light mode
+    return false;
   }
 
   private saveTheme(isDark: boolean): void {

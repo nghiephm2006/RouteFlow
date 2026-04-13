@@ -7,6 +7,7 @@ Mục tiêu: không quên các việc cần làm để tránh lộ secret và tr
 - Rotate ngay Gmail SMTP app password cũ đã từng bị commit trong git history.
 - Rotate ngay `VERCEL_TOKEN` nếu đã từng lộ ở môi trường chat/screen share.
 - Regenerate ngay Render deploy hook key cũ và cập nhật lại `BACKEND_DEPLOY_HOOK_URL`.
+- Rotate ngay Neon database password nếu đã từng lộ ở môi trường chat/screen share.
 - Sau khi rotate, cập nhật lại toàn bộ secrets tương ứng trên GitHub Actions.
 - Nếu tạm ngừng dùng demo, stop hoặc deallocate hoặc xóa Azure VM hay resource group để tránh tốn credit.
 
